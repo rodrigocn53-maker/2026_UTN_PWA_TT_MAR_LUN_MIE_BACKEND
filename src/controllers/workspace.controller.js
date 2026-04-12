@@ -23,7 +23,7 @@ class WorkspaceController {
         catch (error) {
             //Errores esperables en el sistema
             if (error instanceof ServerError) {
-                return res.status(error.status).json(
+                return response.status(error.status).json(
                     {
                         ok: false,
                         status: error.status,
@@ -33,7 +33,7 @@ class WorkspaceController {
             }
             else {
                 console.error('Error inesperado en el registro', error)
-                return res.status(500).json(
+                return response.status(500).json(
                     {
                         ok: false,
                         status: 500,

@@ -8,6 +8,7 @@ WorkspaceMemberRepository
 
 
 import WorkspaceMember from "../models/workspaceMember.model.js"
+import Workspace from "../models/workspace.model.js"
 class WorkspaceMemberRepository {
     async create(fk_id_workspace, fk_id_user, role) {
         await WorkspaceMember.create({
@@ -78,12 +79,12 @@ class WorkspaceMemberRepository {
                     member_role: member.role,
                     member_created_at: member.created_at,
                     
-                    workspace_id: member.fk_id_workspace._id,
-                    workspace_title: member.fk_id_workspace.title,
-                    workspace_description: member.fk_id_workspace.description
+                    workspace_id: member.fk_id_workspace?._id,
+                    workspace_title: member.fk_id_workspace?.title,
+                    workspace_description: member.fk_id_workspace?.description
                 }
             }
-        )
+        ).filter(member => member.workspace_id) // Opcionalmente filtrar si un workspace fue eliminado
 
         return members_mapped
     }

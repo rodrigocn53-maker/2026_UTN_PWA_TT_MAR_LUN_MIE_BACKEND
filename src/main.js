@@ -42,12 +42,19 @@ app.get(
     }
 )
 
-app.listen(
-    ENVIRONMENT.PORT, 
-    () => {
-        console.log('La aplicacion se esta escuchando en el puerto ' + ENVIRONMENT.PORT)
-    }
-)
+//Evitar error en vercel pero no romper el deploy local
+
+if (ENVIRONMENT.PORT && process.env.NODE_ENV !== 'production') {
+    // Solo levantamos el puerto si no estamos en Vercel
+    app.listen(
+        ENVIRONMENT.PORT, 
+        () => {
+            console.log('La aplicacion se esta escuchando en el puerto ' + ENVIRONMENT.PORT)
+        }
+    )
+}
+
+export default app;
 
 
 /* mailerTransporter.sendMail(

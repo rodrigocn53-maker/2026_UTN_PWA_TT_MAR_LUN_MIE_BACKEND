@@ -1,6 +1,7 @@
 import ServerError from "../helpers/error.helper.js";
 import userRepository from "../repository/user.repository.js";
 import authService from "../services/auth.service.js";
+import ENVIRONMENT from "../config/environment.config.js";
 
 class AuthController {
     async register(req, res) {
@@ -84,10 +85,55 @@ class AuthController {
             const { verify_email_token } = request.query
 
             await authService.verifyEmail({ verify_email_token })
-
-            response.status(200).send(`<h1>Mail verificado exitosamente</h1>`)
+            /* 
+            antiguo: solo un h1 diciendo que esta verificado
+            response.status(200).send(`<h1>Mail verificado exitosamente</h1>`) 
+            modificacion: para dejar un alert en el  front cuando no se verifica el mail en login*
+            */
+            const frontendUrl = ENVIRONMENT.URL_FRONTEND || 'http://localhost:5173';
+            const htmlRespuesta = `
+                <html lang="es">
+                <head>
+                    <title>Email Verificado</title>
+                </head>
+                <body style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background-color: #f4f4f9;">
+                    <div style="text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                        <h1 style="color: #4CAF50;">✅ ¡Cuenta verificada exitosamente!</h1>
+                        <p style="color: #555; font-size: 1.1em; margin-bottom: 25px;">Ya puedes volver a la aplicación e iniciar sesión.</p>
+                        <a href="${frontendUrl}/login" 
+                           style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1em; transition: background 0.3s; display: inline-block;">
+                           Ir a Iniciar Sesión / Página Principal
+                        </a>
+                    </div>
+                </body>
+                </html>
+            `;
+            return response.status(200).send(htmlRespuesta);
         }
         catch (error) {
+            // Si el error es justamente que ya estaba validado, lo enviamos al login igual
+            if (error instanceof ServerError && error.message === 'Usuario con email ya validado') {
+                const frontendUrl = ENVIRONMENT.URL_FRONTEND || 'http://localhost:5173';
+                const htmlRespuesta = `
+                    <html lang="es">
+                    <head>
+                        <title>Email Verificado</title>
+                    </head>
+                    <body style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background-color: #f4f4f9;">
+                        <div style="text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                            <h1 style="color: #4CAF50;">✅ ¡Oye, tu cuenta ya estaba verificada!</h1>
+                            <p style="color: #555; font-size: 1.1em; margin-bottom: 25px;">No necesitas verificarla dos veces. Ya puedes iniciar sesión.</p>
+                            <a href="${frontendUrl}/login" 
+                               style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1em; transition: background 0.3s; display: inline-block;">
+                               Ir a Iniciar Sesión / Página Principal
+                            </a>
+                        </div>
+                    </body>
+                    </html>
+                `;
+                return response.status(200).send(htmlRespuesta);
+            }
+
             //Errores esperables en el sistema
             if (error instanceof ServerError) {
                 return response.status(error.status).json(

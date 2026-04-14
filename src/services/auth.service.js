@@ -28,7 +28,7 @@ class AuthService {
         const passwordHashed = await bcrypt.hash(password, 12)
         const userCreated = await userRepository.create(name, email, passwordHashed);
         await this.sendVerifyEmail({email, name})
-        
+        return userCreated
     }
 
     async verifyEmail({ verify_email_token }) {
@@ -72,7 +72,7 @@ class AuthService {
             else if(error instanceof jwt.JsonWebTokenError){
                 throw new ServerError('Token invalido', 401)
             }
-            //SIno es error de JWT que el error siga el flujo normal
+            //Sino es error de JWT que el error siga el flujo normal
             else{
                 throw error
             }
@@ -88,6 +88,11 @@ class AuthService {
         const is_same_password = await bcrypt.compare(password, user.password)
         if (!is_same_password) {
             throw new ServerError('Contraseña incorrecta', 401);
+        }
+        //Verificamos si el email ya fue validado
+        if (!user.email_verified) {
+            //Agregar alert(...) en front sino falla.
+            throw new ServerError('Por favor, verifica tu cuenta desde el enlace enviado a tu correo electrónico antes de iniciar sesión.', 403);
         }
         
         const auth_token = jwt.sign(

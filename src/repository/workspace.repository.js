@@ -12,8 +12,8 @@ class WorkspaceRepository {
         const user = await WorkspaceModel.create({
             title: title,
             description: description,
-            url_image,
-            active
+            url_image: url_image,
+            active //innecesario, ya que iria por usuario, Y/O depende de la vida del channel (desactivar por el admin opcional, para que? nose pero suena interesante jaja)
         })
         console.log("Workspace created: ", user);
     };

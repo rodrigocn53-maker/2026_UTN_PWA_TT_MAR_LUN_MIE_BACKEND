@@ -43,6 +43,17 @@ class WorkspaceController {
             }
         }
     }
+
+    async createWorkspace(request, response) {
+        try {
+            const {title, description} = request.body
+            const user = request.user
+            await workspaceService.createWorkspace({title, description, user})
+        }
+        catch (error) {
+            throw error;
+        }
+    }
 }
 
 const workspaceController = new WorkspaceController()

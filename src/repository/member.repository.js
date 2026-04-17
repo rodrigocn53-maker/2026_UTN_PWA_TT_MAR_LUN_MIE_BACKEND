@@ -88,6 +88,10 @@ class WorkspaceMemberRepository {
 
         return members_mapped
     }
+
+    async getByWorkspaceAndUserId(workspace_id, user_id){
+        return await WorkspaceMember.find({workspace_id, user_id})
+    }
 }
 const workspaceMemberRepository = new WorkspaceMemberRepository()
 export default workspaceMemberRepository

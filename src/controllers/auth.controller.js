@@ -1,10 +1,8 @@
-import ServerError from "../helpers/error.helper.js";
 import userRepository from "../repository/user.repository.js";
 import authService from "../services/auth.service.js";
-import ENVIRONMENT from "../config/environment.config.js";
 
 class AuthController {
-    async register(req, res) {
+    async register(req, res, next) {
 
         try {
 
@@ -19,31 +17,12 @@ class AuthController {
             });
         }
         catch (error) {
-            //Errores esperables en el sistema
-            if (error instanceof ServerError) {
-                return res.status(error.status).json(
-                    {
-                        ok: false,
-                        status: error.status,
-                        message: error.message
-                    }
-                )
-            }
-            else {
-                console.error('Error inesperado en el registro', error)
-                return res.status(500).json(
-                    {
-                        ok: false,
-                        status: 500,
-                        message: "Internal server error"
-                    }
-                )
-            }
+            next(error)
         }
     }
 
 
-    async login(req, res) {
+    async login(req, res, next) {
         try {
             const { email, password } = req.body;
             const auth_token = await authService.login({ email, password })
@@ -57,109 +36,25 @@ class AuthController {
             });
         }
         catch (error) {
-            //Errores esperables en el sistema
-            if (error instanceof ServerError) {
-                return res.status(error.status).json(
-                    {
-                        ok: false,
-                        status: error.status,
-                        message: error.message
-                    }
-                )
-            }
-            else {
-                console.error('Error inesperado en el login', error)
-                return res.status(500).json(
-                    {
-                        ok: false,
-                        status: 500,
-                        message: "Internal server error"
-                    }
-                )
-            }
+            next(error)
         }
     }
 
-    async verifyEmail(request, response) {
+    async verifyEmail(request, response, next) {
         try {
             const { verify_email_token } = request.query
 
             await authService.verifyEmail({ verify_email_token })
-            /* 
-            antiguo: solo un h1 diciendo que esta verificado
-            response.status(200).send(`<h1>Mail verificado exitosamente</h1>`) 
-            modificacion: para dejar un alert en el  front cuando no se verifica el mail en login*
-            */
-            const frontendUrl = ENVIRONMENT.URL_FRONTEND || 'http://localhost:5173';
-            const htmlRespuesta = `
-                <html lang="es">
-                <head>
-                    <title>Email Verificado</title>
-                </head>
-                <body style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background-color: #f4f4f9;">
-                    <div style="text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                        <h1 style="color: #4CAF50;">✅ ¡Cuenta verificada exitosamente!</h1>
-                        <p style="color: #555; font-size: 1.1em; margin-bottom: 25px;">Ya puedes volver a la aplicación e iniciar sesión.</p>
-                        <a href="${frontendUrl}/login" 
-                           style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1em; transition: background 0.3s; display: inline-block;">
-                           Ir a Iniciar Sesión / Página Principal
-                        </a>
-                    </div>
-                </body>
-                </html>
-            `;
-            return response.status(200).send(htmlRespuesta);
+
+            response.status(200).send(`<h1>Mail verificado exitosamente</h1>`)
         }
         catch (error) {
-            // Si el error es justamente que ya estaba validado, lo enviamos al login igual
-            if (error instanceof ServerError && error.message === 'Usuario con email ya validado') {
-                const frontendUrl = ENVIRONMENT.URL_FRONTEND || 'http://localhost:5173';
-                const htmlRespuesta = `
-                    <html lang="es">
-                    <head>
-                        <title>Email Verificado</title>
-                    </head>
-                    <body style="display: flex; justify-content: center; align-items: center; height: 100vh; font-family: Arial, sans-serif; background-color: #f4f4f9;">
-                        <div style="text-align: center; padding: 40px; background: white; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                            <h1 style="color: #4CAF50;">✅ ¡Oye, tu cuenta ya estaba verificada!</h1>
-                            <p style="color: #555; font-size: 1.1em; margin-bottom: 25px;">No necesitas verificarla dos veces. Ya puedes iniciar sesión.</p>
-                            <a href="${frontendUrl}/login" 
-                               style="background-color: #007BFF; color: white; padding: 12px 24px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 1.1em; transition: background 0.3s; display: inline-block;">
-                               Ir a Iniciar Sesión / Página Principal
-                            </a>
-                        </div>
-                    </body>
-                    </html>
-                `;
-                return response.status(200).send(htmlRespuesta);
-            }
-
-            //Errores esperables en el sistema
-            if (error instanceof ServerError) {
-                return response.status(error.status).json(
-                    {
-                        ok: false,
-                        status: error.status,
-                        message: error.message
-                    }
-                )
-            }
-
-            else {
-                console.error('Error inesperado en el login', error)
-                return response.status(500).json(
-                    {
-                        ok: false,
-                        status: 500,
-                        message: "Internal server error"
-                    }
-                )
-            }
+            next(error)
         }
 
     }
 
-    async resetPasswordRequest(req, res) {
+    async resetPasswordRequest(req, res, next) {
         try {
             const { email } = req.body;
             await authService.resetPasswordRequest({ email });
@@ -169,23 +64,11 @@ class AuthController {
                 message: "Se ha enviado un correo electrónico para restablecer la contraseña",
             });
         } catch (error) {
-            if (error instanceof ServerError) {
-                return res.status(error.status).json({
-                    ok: false,
-                    status: error.status,
-                    message: error.message,
-                });
-            }
-            console.log(error)
-            return res.status(500).json({
-                ok: false,
-                status: 500,
-                message: "Error al solicitar el restablecimiento de contraseña",
-            })
+            next(error)
         }
     }
 
-    async resetPassword(req, res) {
+    async resetPassword(req, res, next) {
         try {
             const { reset_password_token } = req.params;
             const { password } = req.body;
@@ -196,18 +79,7 @@ class AuthController {
                 message: "La contraseña se ha restablecido exitosamente",
             });
         } catch (error) {
-            if (error instanceof ServerError) {
-                return res.status(error.status).json({
-                    ok: false,
-                    status: error.status,
-                    message: error.message,
-                });
-            }
-            return res.status(500).json({
-                ok: false,
-                status: 500,
-                message: "Error al restablecer la contraseña",
-            })
+            next(error)
         }
     }
 

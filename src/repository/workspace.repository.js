@@ -7,25 +7,52 @@ Crear la class WorkspaceRepository con los sig metodos:
 */
 
 import WorkspaceModel from "../models/workspace.model.js";
+import ServerError from "../helpers/error.helper.js";
+
 class WorkspaceRepository {
     async create(title, description, url_image, active) {
-        const user = await WorkspaceModel.create({
-            title: title,
-            description: description,
-            url_image: url_image,
-            active //innecesario, ya que iria por usuario, Y/O depende de la vida del channel (desactivar por el admin opcional, para que? nose pero suena interesante jaja)
-        })
-        console.log("Workspace created: ", user);
+        try {
+            const workspace = await WorkspaceModel.create({
+                title: title,
+                description: description,
+                url_image,
+                active
+            })
+            return workspace
+        } catch (error) {
+            if (error.code === 11000) {
+                throw new ServerError("El título de este espacio de trabajo ya está en uso", 400);
+            }
+            throw new ServerError("Error al crear el espacio de trabajo en la base de datos", 500);
+        }
     };
+
     async deleteById(workspace_id) {
-        await WorkspaceModel.findByIdAndDelete(workspace_id);
+        try {
+            await WorkspaceModel.findByIdAndDelete(workspace_id);
+        } catch (error) {
+            throw new ServerError("Error al eliminar el espacio de trabajo", 500);
+        }
     };
+
     async getById(workspace_id) {
-        return await WorkspaceModel.findById(workspace_id)
+        try {
+            return await WorkspaceModel.findById(workspace_id)
+        } catch (error) {
+            throw new ServerError("Error al obtener el espacio de trabajo", 500);
+        }
     };
+
     async updateById(workspace_id, new_workspace_props) {
-        const new_user = WorkspaceModel.findByIdAndUpdate(workspace_id, new_workspace_props, { new: true })
-        return new_user;
+        try {
+            const new_workspace = await WorkspaceModel.findByIdAndUpdate(workspace_id, new_workspace_props, { new: true })
+            return new_workspace;
+        } catch (error) {
+            if (error.code === 11000) {
+                throw new ServerError("El título proporcionado ya está en uso", 400);
+            }
+            throw new ServerError("Error al actualizar el espacio de trabajo", 500);
+        }
     };
 }
 const workspaceRepository = new WorkspaceRepository()

@@ -8,89 +8,141 @@ WorkspaceMemberRepository
 
 
 import WorkspaceMember from "../models/workspaceMember.model.js"
-import Workspace from "../models/workspace.model.js"
+import ServerError from "../helpers/error.helper.js"
+
 class WorkspaceMemberRepository {
     async create(fk_id_workspace, fk_id_user, role) {
-        await WorkspaceMember.create({
-            fk_id_workspace: fk_id_workspace,
-            fk_id_user: fk_id_user,
-            role: role
-        })
+        try {
+            return await WorkspaceMember.create({
+                fk_id_workspace,
+                fk_id_user,
+                role
+            })
+        } catch (error) {
+            if (error.code === 11000) {
+                throw new ServerError("El usuario ya es miembro de este espacio de trabajo", 400);
+            }
+            throw new ServerError("Error al registrar el miembro en la base de datos", 500);
+        }
     }
+
     async deleteById(workspace_member_id) {
-        await WorkspaceMember.findByIdAndDelete(workspace_member_id)
+        try {
+            await WorkspaceMember.findByIdAndDelete(workspace_member_id)
+        } catch (error) {
+            throw new ServerError("Error al eliminar el miembro", 500);
+        }
     }
+
     async getById(workspace_member_id) {
-        await WorkspaceMember.findById(workspace_member_id)
+        try {
+            return await WorkspaceMember.findById(workspace_member_id)
+        } catch (error) {
+            throw new ServerError("Error al obtener el miembro", 500);
+        }
     }
+
     async updateRoleById(member_id, role) {
-        const new_workspace_member = await WorkspaceMember.findByIdAndUpdate(
-            member_id,
-            {role: role},
-            { new: true }
-        )
-        return new_workspace_member
+        try {
+            const new_workspace_member = await WorkspaceMember.findByIdAndUpdate(
+                member_id,
+                { role: role },
+                { new: true }
+            )
+            return new_workspace_member
+        } catch (error) {
+            throw new ServerError("Error al actualizar el rol del miembro", 500);
+        }
     }
+
+    async updateInvitationStatus(member_id, status) {
+        try {
+            const updated_member = await WorkspaceMember.findByIdAndUpdate(
+                member_id,
+                { acceptInvitation: status },
+                { new: true }
+            )
+            return updated_member
+        } catch (error) {
+            throw new ServerError("Error al actualizar el estado de la invitación", 500);
+        }
+    }
+
     async getAll() {
-        await WorkspaceMember.find()
+        try {
+            return await WorkspaceMember.find()
+        } catch (error) {
+            throw new ServerError("Error al obtener la lista de miembros", 500);
+        }
     }
+
     async getMemberList(fk_id_workspace) {
+        try {
+            const members = await WorkspaceMember.find({ fk_id_workspace: fk_id_workspace })
+                .populate('fk_id_user', 'name email')
 
-        /* 
-        con el metodo populate podemos traer los datos relacionados a las referencias que tenemos en el modelo, en este caso fk_id_user y fk_id_workspace.
-        Entonces si quiero traer el nombre de usuario de cada miembro podria hacer un populate de fk_id_user y seleccionar solo el campo name, quedando asi:
-        */
+            const members_mapped = members.map(
+                (member) => {
+                    return {
+                        member_id: member._id,
+                        member_role: member.role,
+                        member_created_at: member.created_at,
 
-        const members = await WorkspaceMember.find({ fk_id_workspace: fk_id_workspace })
-        .populate('fk_id_user', 'name email')
-        .populate('fk_id_workspace', 'title description')
-        
-        const members_mapped = members.map(
-            (member) => {
-                return {
-                    member_id: member._id,
-                    member_role: member.role,
-                    member_created_at: member.created_at,
-                    
-                    user_id: member.fk_id_user._id,
-                    user_name: member.fk_id_user.name,
-                    user_email: member.fk_id_user.email,
-                    
-                    workspace_id: member.fk_id_workspace._id,
-                    workspace_title: member.fk_id_workspace.title,
-                    workspace_description: member.fk_id_workspace.description
+                        user_id: member.fk_id_user._id,
+                        user_name: member.fk_id_user.name,
+                        user_email: member.fk_id_user.email
+                    }
                 }
-            }
-        )
-        console.log(members_mapped)
-        return members_mapped
+            )
+            return members_mapped
+        } catch (error) {
+            throw new ServerError("Error al obtener la lista de miembros del espacio", 500);
+        }
     }
 
-    async getWorkspaceListByUserId(user_id){
+    async getWorkspaceListByUserId(user_id) {
+        try {
+            const members = await WorkspaceMember.find({ fk_id_user: user_id })
+                .populate('fk_id_workspace')
 
-        //Toda la lista de miembros donde el usuario sea miembro
-        const members = await WorkspaceMember.find({fk_id_user: user_id})
-        .populate('fk_id_workspace')
+            const members_mapped = members.map(
+                (member) => {
+                    return {
+                        member_id: member._id,
+                        member_role: member.role,
+                        member_created_at: member.created_at,
 
-        const members_mapped = members.map(
-            (member) => {
-                return {
-                    member_id: member._id,
-                    member_role: member.role,
-                    member_created_at: member.created_at,
-                    
-                    workspace_id: member.fk_id_workspace?._id,
-                    workspace_title: member.fk_id_workspace?.title,
-                    workspace_description: member.fk_id_workspace?.description
+                        workspace_id: member.fk_id_workspace._id,
+                        workspace_title: member.fk_id_workspace.title,
+                        workspace_description: member.fk_id_workspace.description
+                    }
                 }
-            }
-        ).filter(member => member.workspace_id) // Opcionalmente filtrar si un workspace fue eliminado
+            )
 
-        return members_mapped
+            return members_mapped
+        } catch (error) {
+            throw new ServerError("Error al obtener la lista de espacios de trabajo del usuario", 500);
+        }
     }
 
-    async getByWorkspaceAndUserId(workspace_id, user_id){
-        return await WorkspaceMember.find({workspace_id, user_id})
+    async getByWorkspaceAndUserId(workspace_id, user_id) {
+        try {
+            return await WorkspaceMember.findOne({ fk_id_workspace: workspace_id, fk_id_user: user_id })
+        } catch (error) {
+            throw new ServerError("Error al buscar el miembro en el espacio", 500);
+        }
+    }
+
+    async isMemberPartOfWorkspaceById(user_id, workspace_id) {
+        try {
+            const member = await WorkspaceMember.findOne({
+                fk_id_user: user_id,
+                fk_id_workspace: workspace_id,
+            });
+            return member;
+        } catch (error) {
+            throw new ServerError("Error al verificar la pertenencia al espacio", 500);
+        }
     }
 }
 const workspaceMemberRepository = new WorkspaceMemberRepository()

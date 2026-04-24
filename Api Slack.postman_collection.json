@@ -1,0 +1,426 @@
+{
+  "info": {
+    "_postman_id": "9cf9f446-da7d-476c-840a-f4f4f5add5ee",
+    "name": "Api Slack",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "22101868",
+    "_collection_link": "https://go.postman.co/collection/22101868-9cf9f446-da7d-476c-840a-f4f4f5add5ee?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "/api/auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"name\": \"pepesito\",\r\n    \"email\": \"pepe123@gmail.com\",\r\n    \"password\": \"Mati_123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL_API_SLACK}}/api/auth/register",
+              "host": [
+                "{{URL_API_SLACK}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"mati.dev.gimenez@gmail.com\",\r\n    \"password\": \"Mati_123\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL_API_SLACK}}/api/auth/login",
+              "host": [
+                "{{URL_API_SLACK}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Solicitud de cambio de contraseña",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"email\": \"mati.dev.gimenez@gmail.com\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL_API_SLACK}}/api/auth/reset-password-request",
+              "host": [
+                "{{URL_API_SLACK}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password-request"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar contraseña",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"password\": \"Mati_1234\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL_API_SLACK}}/api/auth/reset-password/:reset_token",
+              "host": [
+                "{{URL_API_SLACK}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password",
+                ":reset_token"
+              ],
+              "variable": [
+                {
+                  "key": "reset_token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hdGkuZGV2LmdpbWVuZXpAZ21haWwuY29tIiwiaWF0IjoxNzczNjg1MjAxLCJleHAiOjE3NzM3NzE2MDF9.fVUO841FLAaBbSvND97tr5a1c7r6OxCTi4xijOzPyGs"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "/api/workspace",
+      "item": [
+        {
+          "name": "/:workspace_id",
+          "item": [
+            {
+              "name": "/channels",
+              "item": [
+                {
+                  "name": "Crear Canal",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hdGkuZGV2LmdpbWVuZXpAZ21haWwuY29tIiwibmFtZSI6InBlcGVzaXRvMiIsImlkIjoiNjliMWQ1MWJmOTFmOTAzMWZhNGYyZDA0IiwiY3JlYXRlZF9hdCI6IjIwMjYtMDMtMTFUMjA6NDg6MjcuMzY4WiIsImlhdCI6MTc3NDI5NTQ3Mn0.yLXWSSuvt65cKFaFsit78p_yfnS0CZ3ath2ABjzKxtE",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "POST",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"name\": \"Test canal 1\",\r\n    \"description\": \"lorem ipsum\",\r\n}   "
+                    },
+                    "url": {
+                      "raw": "{{URL_API_SLACK}}/api/workspace/:workspace_id/channels",
+                      "host": [
+                        "{{URL_API_SLACK}}"
+                      ],
+                      "path": [
+                        "api",
+                        "workspace",
+                        ":workspace_id",
+                        "channels"
+                      ],
+                      "variable": [
+                        {
+                          "key": "workspace_id",
+                          "value": "69cd73bcb3bab8a0a69a5320"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Obtener canales",
+                  "request": {
+                    "method": "GET",
+                    "header": []
+                  },
+                  "response": []
+                },
+                {
+                  "name": "Eliminar canal por id",
+                  "request": {
+                    "auth": {
+                      "type": "bearer",
+                      "bearer": [
+                        {
+                          "key": "token",
+                          "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hdGkuZGV2LmdpbWVuZXpAZ21haWwuY29tIiwibmFtZSI6InBlcGVzaXRvMiIsImlkIjoiNjliMWQ1MWJmOTFmOTAzMWZhNGYyZDA0IiwiY3JlYXRlZF9hdCI6IjIwMjYtMDMtMTFUMjA6NDg6MjcuMzY4WiIsImlhdCI6MTc3NDI5NTQ3Mn0.yLXWSSuvt65cKFaFsit78p_yfnS0CZ3ath2ABjzKxtE",
+                          "type": "string"
+                        }
+                      ]
+                    },
+                    "method": "DELETE",
+                    "header": [],
+                    "body": {
+                      "mode": "raw",
+                      "raw": "{\r\n    \"name\": \"Test canal 1\",\r\n    \"description\": \"lorem ipsum\",\r\n}   "
+                    },
+                    "url": {
+                      "raw": "{{URL_API_SLACK}}/api/workspace/:workspace_id/channels/:channel_id",
+                      "host": [
+                        "{{URL_API_SLACK}}"
+                      ],
+                      "path": [
+                        "api",
+                        "workspace",
+                        ":workspace_id",
+                        "channels",
+                        ":channel_id"
+                      ],
+                      "variable": [
+                        {
+                          "key": "workspace_id",
+                          "value": "69cd73bcb3bab8a0a69a5320"
+                        },
+                        {
+                          "key": "channel_id",
+                          "value": "69d6aaf86e2ff92e3a854ab3"
+                        }
+                      ]
+                    }
+                  },
+                  "response": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "/member",
+          "item": [
+            {
+              "name": "/invite",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hdGkuZGV2LmdpbWVuZXpAZ21haWwuY29tIiwibmFtZSI6InBlcGVzaXRvMiIsImlkIjoiNjliMWQ1MWJmOTFmOTAzMWZhNGYyZDA0IiwiY3JlYXRlZF9hdCI6IjIwMjYtMDMtMTFUMjA6NDg6MjcuMzY4WiIsImlhdCI6MTc3NDI5NTQ3Mn0.yLXWSSuvt65cKFaFsit78p_yfnS0CZ3ath2ABjzKxtE",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\r\n    \"email\":\"mati.a.gimenez2002@gmail.com\",\r\n    \"role\": \"admin\"    \r\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{URL_API_SLACK}}/api/workspace/:workspace_id/member/invite",
+                  "host": [
+                    "{{URL_API_SLACK}}"
+                  ],
+                  "path": [
+                    "api",
+                    "workspace",
+                    ":workspace_id",
+                    "member",
+                    "invite"
+                  ],
+                  "variable": [
+                    {
+                      "key": "workspace_id",
+                      "value": "69cd73bcb3bab8a0a69a5320"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Obtener workspaces",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{URL_API_SLACK}}/api/workspace",
+              "host": [
+                "{{URL_API_SLACK}}"
+              ],
+              "path": [
+                "api",
+                "workspace"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear espacio de trabajo",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hdGkuZGV2LmdpbWVuZXpAZ21haWwuY29tIiwibmFtZSI6InBlcGVzaXRvMiIsImlkIjoiNjliMWQ1MWJmOTFmOTAzMWZhNGYyZDA0IiwiY3JlYXRlZF9hdCI6IjIwMjYtMDMtMTFUMjA6NDg6MjcuMzY4WiIsImlhdCI6MTc3NDI5NTQ3Mn0.yLXWSSuvt65cKFaFsit78p_yfnS0CZ3ath2ABjzKxtE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Workspace 1\",\r\n    \"description\": \"lorem ipsum\",\r\n    \"url_img\": \"test.png\"\r\n}   ",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{URL_API_SLACK}}/api/workspace/",
+              "host": [
+                "{{URL_API_SLACK}}"
+              ],
+              "path": [
+                "api",
+                "workspace",
+                ""
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener espacio de trabajo",
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          },
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Im1hdGkuZGV2LmdpbWVuZXpAZ21haWwuY29tIiwibmFtZSI6InBlcGVzaXRvMiIsImlkIjoiNjliMWQ1MWJmOTFmOTAzMWZhNGYyZDA0IiwiY3JlYXRlZF9hdCI6IjIwMjYtMDMtMTFUMjA6NDg6MjcuMzY4WiIsImlhdCI6MTc3NDI5NTQ3Mn0.yLXWSSuvt65cKFaFsit78p_yfnS0CZ3ath2ABjzKxtE",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"title\": \"Test Workspace 1\",\r\n    \"description\": \"lorem ipsum\",\r\n    \"url_img\": \"test.png\"\r\n}   "
+            },
+            "url": {
+              "raw": "{{URL_API_SLACK}}/api/workspace/:workspace_id",
+              "host": [
+                "{{URL_API_SLACK}}"
+              ],
+              "path": [
+                "api",
+                "workspace",
+                ":workspace_id"
+              ],
+              "variable": [
+                {
+                  "key": "workspace_id",
+                  "value": "69cd73bcb3bab8a0a69a5320"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Health check",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Health check Database",
+      "request": {
+        "method": "GET",
+        "header": []
+      },
+      "response": []
+    },
+    {
+      "name": "Test",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{URL_API_SLACK}}/api/test",
+          "host": [
+            "{{URL_API_SLACK}}"
+          ],
+          "path": [
+            "api",
+            "test"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}

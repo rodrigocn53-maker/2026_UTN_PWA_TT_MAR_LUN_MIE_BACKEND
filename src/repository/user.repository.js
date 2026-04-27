@@ -93,6 +93,16 @@ class UserRepository {
             throw new ServerError("Error al buscar usuario por nombre", 500);
         }
     }
+
+    async getAll(excludeId) {
+        try {
+            return await User.find({ _id: { $ne: excludeId } })
+                .select('name username tag email')
+                .sort({ name: 1 });
+        } catch (error) {
+            throw new ServerError("Error al obtener la lista de usuarios", 500);
+        }
+    }
 }
 
 

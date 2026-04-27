@@ -12,6 +12,7 @@ import authRouter from "./routes/auth.router.js"
 import workspaceRouter from "./routes/workspace.router.js"
 import notificationRouter from "./routes/notification.router.js"
 import searchRouter from "./routes/search.router.js"
+import userRouter from "./routes/user.router.js"
 import mailerTransporter from "./config/mailer.config.js"
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
@@ -93,6 +94,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/workspace', workspaceRouter)
 app.use('/api/notifications', notificationRouter)
 app.use('/api/search', searchRouter)
+app.use('/api/users', userRouter)
 
 app.get(
     '/api/test',

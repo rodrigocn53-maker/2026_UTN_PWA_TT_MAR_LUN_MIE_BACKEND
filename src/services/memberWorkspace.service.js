@@ -87,13 +87,41 @@ class MemberWorkspaceService {
         await mailerTransporter.sendMail({
             from: ENVIRONMENT.MAIL_USER,
             to: invited_email,
-            subject: `Invitación a unirse al espacio de trabajo`,
+            subject: `¡Te han invitado a colaborar en un espacio de trabajo!`,
             html: `
-                <h1>Has sido invitado a un espacio de trabajo</h1>
-                <p>Haz clic en uno de los siguientes enlaces para aceptar o rechazar la invitación:</p>
-                <a href="${accept_link}" style="background-color: #4CAF50; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Aceptar Invitación</a>
-                <br/><br/>
-                <a href="${reject_link}" style="background-color: #f44336; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px;">Rechazar Invitación</a>
+                <div style="background-color: #f8f8f8; padding: 40px 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                    <table align="center" border="0" cellpadding="0" cellspacing="0" width="600" style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden;">
+                        <tr>
+                            <td align="center" style="padding: 40px 0 20px 0; background-color: #4a154b;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 28px;">Slack Clone</h1>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style="padding: 40px;">
+                                <h2 style="color: #1d1c1d; margin: 0 0 20px 0; font-size: 22px;">¡Hola! Has sido invitado</h2>
+                                <p style="font-size: 16px; color: #454245; line-height: 1.6; margin-bottom: 30px;">
+                                    Alguien te ha invitado a colaborar en un espacio de trabajo de nuestra plataforma. ¡Estamos ansiosos por tenerte a bordo!
+                                </p>
+                                <table border="0" cellpadding="0" cellspacing="0" width="100%">
+                                    <tr>
+                                        <td align="center">
+                                            <a href="${accept_link}" style="background-color: #007a5a; color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block; margin-right: 10px;">Aceptar Invitación</a>
+                                            <a href="${reject_link}" style="background-color: #e01e5a; color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 4px; font-weight: bold; display: inline-block;">Rechazar</a>
+                                        </td>
+                                    </tr>
+                                </table>
+                                <p style="font-size: 14px; color: #616061; margin-top: 30px;">
+                                    Si no esperabas esta invitación, puedes ignorar este correo de forma segura.
+                                </p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td align="center" style="padding: 20px; background-color: #f8f8f8; color: #ababad; font-size: 12px;">
+                                Enviado por el equipo de Slack Clone &bull; 2026
+                            </td>
+                        </tr>
+                    </table>
+                </div>
             `
         })
 

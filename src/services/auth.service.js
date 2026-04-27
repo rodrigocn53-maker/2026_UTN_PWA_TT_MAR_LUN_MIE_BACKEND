@@ -9,7 +9,7 @@ import ENVIRONMENT from "../config/environment.config.js";
 import mailerTransporter from "../config/mailer.config.js";
 import ServerError from "../helpers/error.helper.js";
 import userRepository from "../repository/user.repository.js";
-import bcrypt from 'bcrypt'
+import bcrypt from 'bcryptjs'
 
 class AuthService {
     generateRandomTag() {

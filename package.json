@@ -2,13 +2,13 @@
   "name": "clase-10",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/main.js",
+  "main": "src/main.mjs",
   "engines": {
     "node": "22.x"
   },
   "scripts": {
-    "start": "node src/main.js",
-    "dev": "node --watch src/main.js",
+    "start": "node src/main.mjs",
+    "dev": "node --watch src/main.mjs",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -16,7 +16,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "bcrypt": "^6.0.0",
+    "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "dotenv": "^17.2.4",

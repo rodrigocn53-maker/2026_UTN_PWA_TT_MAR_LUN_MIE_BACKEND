@@ -116,10 +116,14 @@ app.use(
     errorHandlerMiddleware
 )
 
-app.listen(
-    ENVIRONMENT.PORT,
-    () => {
-        console.log('La aplicacion se esta escuchando en el puerto ' + ENVIRONMENT.PORT)
-    }
-)
+export default app
+
+if (!process.env.VERCEL) {
+    app.listen(
+        ENVIRONMENT.PORT,
+        () => {
+            console.log('La aplicacion se esta escuchando en el puerto ' + ENVIRONMENT.PORT)
+        }
+    )
+}
 

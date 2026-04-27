@@ -1,7 +1,11 @@
 {
   "name": "clase-10",
   "version": "1.0.0",
+  "type": "module",
   "main": "src/main.js",
+  "engines": {
+    "node": "22.x"
+  },
   "scripts": {
     "start": "node src/main.js",
     "dev": "node --watch src/main.js",
@@ -10,7 +14,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "module",
   "description": "",
   "dependencies": {
     "bcrypt": "^6.0.0",

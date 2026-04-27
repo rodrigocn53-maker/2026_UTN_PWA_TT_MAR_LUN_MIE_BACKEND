@@ -2,13 +2,13 @@
   "name": "clase-10",
   "version": "1.0.0",
   "type": "module",
-  "main": "src/main.mjs",
+  "main": "src/main.js",
   "engines": {
     "node": "24.x"
   },
   "scripts": {
-    "start": "node src/main.mjs",
-    "dev": "node --watch src/main.mjs",
+    "start": "node src/main.js",
+    "dev": "node --watch src/main.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

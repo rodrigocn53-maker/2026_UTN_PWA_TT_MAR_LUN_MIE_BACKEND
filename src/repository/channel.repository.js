@@ -78,6 +78,14 @@ class ChannelRepository {
             throw new ServerError("Error al eliminar el canal de la base de datos", 500);
         }
     }
+
+    async updateLastMessageAt(channel_id) {
+        try {
+            await ChannelModel.findByIdAndUpdate(channel_id, { last_message_at: Date.now() });
+        } catch (error) {
+            throw new ServerError("Error al actualizar la fecha del último mensaje", 500);
+        }
+    }
 }
 
 const channelRepository = new ChannelRepository()

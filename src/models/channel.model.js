@@ -32,6 +32,10 @@ const channelSchema = new mongoose.Schema(
             type: Boolean,
             required: true,
             default: true
+        },
+        last_message_at: {
+            type: Date,
+            default: Date.now
         }
     }
 )

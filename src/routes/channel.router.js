@@ -4,6 +4,7 @@ import verifyWorkspaceMiddleware from '../middlewares/verifyWorkspace.middleware
 import verifyMemberWorkspaceRoleMiddleware from '../middlewares/verifyMemberWorkspaceMiddleware'
 import verifyChannelMiddleware from '../middlewares/verifyChannel.middleware.js'
 import AVIABLE_MEMBER_ROLES from '../constants/roles.constant.js'
+import messageRouter from './message.router.js'
 const channelRouter = express.Router({mergeParams: true})
 
 channelRouter.use(verifyWorkspaceMiddleware)
@@ -33,5 +34,10 @@ channelRouter.delete(
     channelController.delete
 )
 
+channelRouter.use(
+    '/:channel_id/messages',
+    verifyChannelMiddleware,
+    messageRouter
+)
 
 export default channelRouter

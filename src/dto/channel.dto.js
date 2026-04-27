@@ -7,6 +7,7 @@ class ChannelDTO {
         this.channel_description = channel.description
         this.channel_workspace_id = channel.fk_id_workspace
         this.channel_is_active = channel.is_active
+        this.last_message_at = channel.last_message_at
     }
 }
 

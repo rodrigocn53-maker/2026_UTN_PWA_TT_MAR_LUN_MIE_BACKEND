@@ -1,5 +1,6 @@
 import express from 'express'
 import authController from '../controllers/auth.controller.js'
+import authMiddleware from '../middlewares/authMiddleware.js'
 const authRouter = express.Router()
 
 authRouter.post(
@@ -12,9 +13,20 @@ authRouter.post(
     authController.login
 )
 
+authRouter.post(
+    '/logout',
+    authController.logout
+)
+
 authRouter.get(
     '/verify-email',
     authController.verifyEmail
+)
+
+authRouter.get(
+    '/verify-token',
+    authMiddleware,
+    authController.verifyToken
 )
 
 

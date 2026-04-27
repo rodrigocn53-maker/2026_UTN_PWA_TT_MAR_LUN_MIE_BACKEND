@@ -24,19 +24,40 @@ class AuthController {
 
     async login(req, res, next) {
         try {
-            const { email, password } = req.body;
+            const { email, password, rememberMe } = req.body;
             const auth_token = await authService.login({ email, password })
+
+            const cookieOptions = {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax',
+                // If rememberMe is true, set maxAge to 7 days. Otherwise, omit it for a session cookie.
+                ...(rememberMe && { maxAge: 7 * 24 * 60 * 60 * 1000 })
+            };
+
+            res.cookie('auth_token', auth_token, cookieOptions);
+
             return res.status(200).json({
                 message: "Login successful",
                 status: 200,
-                ok: true,
-                data: {
-                    auth_token: auth_token
-                }
+                ok: true
             });
         }
         catch (error) {
             next(error)
+        }
+    }
+
+    async logout(req, res, next) {
+        try {
+            res.clearCookie('auth_token');
+            return res.status(200).json({
+                ok: true,
+                status: 200,
+                message: "Logout exitoso"
+            });
+        } catch (error) {
+            next(error);
         }
     }
 
@@ -83,6 +104,31 @@ class AuthController {
         }
     }
 
+    async verifyToken(req, res, next) {
+        try {
+            // El request.user fue seteado por el authMiddleware (payload del token)
+            // Buscamos los datos actualizados en la base de datos
+            const user = await userRepository.getById(req.user.id);
+            
+            return res.status(200).json({
+                ok: true,
+                status: 200,
+                message: "Token is valid",
+                data: {
+                    user: {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        tag: user.tag,
+                        created_at: user.created_at
+                    }
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 
 }
 const authController = new AuthController();

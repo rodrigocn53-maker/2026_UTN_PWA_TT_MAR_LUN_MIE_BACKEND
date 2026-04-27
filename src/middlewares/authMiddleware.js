@@ -4,17 +4,11 @@ import ServerError from '../helpers/error.helper.js'
 
 function authMiddleware(request, response, next) {
     try {
-        //El token se envia en el header de authorization NORMALMENTE
-        const auth_header = request.headers.authorization //'Bearer token'
-        if(!auth_header){
-            throw new ServerError('Token faltante', 401)
-        }
-
-        //Extraigo del header el token
-        const auth_token = auth_header.split(' ')[1]
+        // El token se envía en la cookie HttpOnly
+        const auth_token = request.cookies?.auth_token;
 
         if(!auth_token){
-            throw new ServerError('Token invalido', 401)
+            throw new ServerError('Token faltante o invalido', 401)
         }
 
         //Valido el token

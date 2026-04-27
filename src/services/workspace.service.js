@@ -1,6 +1,7 @@
 import ServerError from "../helpers/error.helper.js"
 import workspaceRepository from "../repository/workspace.repository.js"
 import memberWorkspaceService from "./memberWorkspace.service.js"
+import channelService from "./channel.service.js"
 
 class WorkspaceService {
     async create(title, description, url_image, user_id) {
@@ -13,6 +14,11 @@ class WorkspaceService {
             workspace_created._id, 
             'owner'
         )
+        
+        // Crear canales por defecto
+        await channelService.create(workspace_created._id, 'general', 'Canal general del workspace')
+        await channelService.create(workspace_created._id, 'random', 'Canal para temas variados')
+
         return workspace_created
     }
      async getOne(workspace_id) {
@@ -38,6 +44,29 @@ class WorkspaceService {
         } catch (error) {
             throw error
         }
+    }
+    async update(workspace_id, title, description, url_image) {
+        if (!workspace_id) {
+            throw new ServerError("Debe proporcionar un id", 400)
+        }
+        const updated = await workspaceRepository.updateById(workspace_id, { title, description, url_image })
+        return updated
+    }
+
+    async delete(workspace_id) {
+        if (!workspace_id) {
+            throw new ServerError("Debe proporcionar un id", 400)
+        }
+        
+        // Cascading deletes
+        const WorkspaceMember = (await import('../models/workspaceMember.model.js')).default;
+        const ChannelModel = (await import('../models/channel.model.js')).default;
+        
+        await WorkspaceMember.deleteMany({ fk_id_workspace: workspace_id });
+        await ChannelModel.deleteMany({ fk_id_workspace: workspace_id });
+
+        await workspaceRepository.deleteById(workspace_id)
+        return true
     }
 }
 const workspaceService = new WorkspaceService()

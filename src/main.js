@@ -9,10 +9,13 @@ import workspaceRepository from "./repository/workspace.repository.js"
 import express, { response } from 'express';
 import healthRouter from "./routes/health.router.js"
 import authRouter from "./routes/auth.router.js"
+import workspaceRouter from "./routes/workspace.router.js"
+import notificationRouter from "./routes/notification.router.js"
+import searchRouter from "./routes/search.router.js"
 import mailerTransporter from "./config/mailer.config.js"
 import cors from 'cors'
+import cookieParser from 'cookie-parser'
 import authMiddleware from "./middlewares/authMiddleware.js"
-import workspaceRouter from "./routes/workspace.router.js"
 import errorHandlerMiddleware from "./middlewares/errorHandler.middleware.js"
 import ServerError from "./helpers/error.helper.js"
 
@@ -28,6 +31,7 @@ WHITE LIST DE DOMINIOS PERMITIDOS
 */
 const allowedDomains = [
     'http://localhost:5173', //Frontend local
+    'http://localhost:5174', //Frontend local alternativo
     ENVIRONMENT.URL_FRONTEND //Frontend desplegado (Traído desde el .env)
 ]
 
@@ -45,9 +49,12 @@ app.use(cors(
             } else {
                 return callback(new ServerError('No autorizado por CORS', 403))
             }
-        }
+        },
+        credentials: true
     }
 ))
+
+app.use(cookieParser())
 
 /* 
 API es publica y los clientes son ilimitados
@@ -83,6 +90,8 @@ Delegamos las consultas que vengan sobre '/api/health' al healthRouter
 app.use('/api/health', healthRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/workspace', workspaceRouter)
+app.use('/api/notifications', notificationRouter)
+app.use('/api/search', searchRouter)
 
 app.get(
     '/api/test',

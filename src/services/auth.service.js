@@ -12,6 +12,29 @@ import userRepository from "../repository/user.repository.js";
 import bcrypt from 'bcrypt'
 
 class AuthService {
+    generateRandomTag() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // Evitamos O, 0, I, 1 por legibilidad
+        let tag = '';
+        for (let i = 0; i < 4; i++) {
+            tag += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return tag;
+    }
+
+    async generateUniqueTag(username) {
+        let tag;
+        let exists = true;
+        let attempts = 0;
+        while (exists && attempts < 10) {
+            tag = this.generateRandomTag();
+            const user = await userRepository.getByUsernameAndTag(username, tag);
+            if (!user) exists = false;
+            attempts++;
+        }
+        if (exists) throw new ServerError("No se pudo generar un tag único, intenta con otro nombre", 500);
+        return tag;
+    }
+
     async register({ name, email, password }) {
         if (!name || !email || !password) {
             throw new ServerError("Email, nombre de usuario y contraseña son obligatorios", 400);
@@ -21,14 +44,21 @@ class AuthService {
         if (userByEmail) {
             throw new ServerError('Email ya en uso!', 400)
         }
-        const userByUsername = await userRepository.getByUsername(name);
-        if (userByUsername) {
-            throw new ServerError('Nombre de usuario ya en uso!', 400)
-        }
-        const passwordHashed = await bcrypt.hash(password, 12)
-        const userCreated = await userRepository.create(name, email, passwordHashed);
-        await this.sendVerifyEmail({ email, name })
+        
+        // El 'name' enviado en el registro lo usaremos como base para el 'username'
+        const username = name.trim().replace(/\s+/g, '').toLowerCase();
+        const tag = await this.generateUniqueTag(username);
 
+        const passwordHashed = await bcrypt.hash(password, 12)
+        await userRepository.create({ 
+            name, 
+            username, 
+            tag, 
+            email, 
+            password: passwordHashed 
+        });
+        
+        await this.sendVerifyEmail({ email, name: `${username}#${tag}` })
     }
 
     async verifyEmail({ verify_email_token }) {
@@ -36,10 +66,8 @@ class AuthService {
             throw new ServerError('No se encuentra el token', 400)
         }
 
-        //ESTO ES CLAVE
-        //Gracias a esto sabremos si el token fue creado por nosotros
         try {
-            const { email, name } = jwt.verify(verify_email_token, ENVIRONMENT.JWT_SECRET_KEY)
+            const { email } = jwt.verify(verify_email_token, ENVIRONMENT.JWT_SECRET_KEY)
             const user = await userRepository.getByEmail(email)
             if (!user) {
                 throw new ServerError('El usuario no existe', 404)
@@ -62,22 +90,17 @@ class AuthService {
         }
         catch (error) {
             if (error instanceof jwt.TokenExpiredError) {
-
-                //ESto nos permite leer el token pero no verificar firma
                 const { email, name } = jwt.decode(verify_email_token)
-                //Enviar otro mail de verificacion
                 await this.sendVerifyEmail({ email, name })
                 throw new ServerError('El token de verificacion expiro', 401)
             }
             else if (error instanceof jwt.JsonWebTokenError) {
                 throw new ServerError('Token invalido', 401)
             }
-            //SIno es error de JWT que el error siga el flujo normal
             else {
                 throw error
             }
         }
-
     }
 
     async login({ email, password }) {
@@ -97,41 +120,36 @@ class AuthService {
             {
                 email: user.email,
                 name: user.name,
+                username: user.username,
+                tag: user.tag,
                 id: user._id,
                 created_at: user.created_at
             },
-            ENVIRONMENT.JWT_SECRET_KEY
+            ENVIRONMENT.JWT_SECRET_KEY,
+            { expiresIn: '7d' }
         )
         return auth_token
     }
 
-
     async sendVerifyEmail({ email, name }) {
-        //Se crea un token firmado por el backend con el email del usuario a registrar
         const verify_email_token = jwt.sign(
-            {
-                email: email,
-                name: name
-            },
+            { email: email },
             ENVIRONMENT.JWT_SECRET_KEY,
-            {
-                expiresIn: '7d'
-            }
+            { expiresIn: '7d' }
         )
         await mailerTransporter.sendMail(
             {
                 from: ENVIRONMENT.MAIL_USER,
                 to: email,
-                subject: `Bienvenido ${name} verifica tu correo electronico`,
+                subject: `Bienvenido verifica tu correo electronico`,
                 html: `
-                    <h1>Bienvenido ${name}</h1>
+                    <h1>Bienvenido</h1>
                     <p>Te has registrado correctamente, necesitamos verificar tu correo electronico</p>
                     <a href="${ENVIRONMENT.URL_BACKEND + `/api/auth/verify-email?verify_email_token=${verify_email_token}`}">Click aqui para verificar</a>
                     <span>Si no reconoces este registro desestima este mail.</span>
                 `
             }
         )
-
     }
 
     async resetPasswordRequest({ email }) {
@@ -144,17 +162,11 @@ class AuthService {
                 throw new ServerError("El usuario no existe", 404)
             }
 
-            // Se incluye el hash de la contraseña actual en la clave secreta.
-            // Esto garantiza que el token sea de un solo uso (single-use).
             const secret = ENVIRONMENT.JWT_SECRET_KEY + user.password;
             const reset_password_token = jwt.sign(
-                {
-                    email
-                },
+                { email },
                 secret,
-                {
-                    expiresIn: "15m" // Bajamos la expiración a 15 minutos por seguridad
-                }
+                { expiresIn: "15m" }
             )
 
             await mailerTransporter.sendMail({
@@ -164,17 +176,13 @@ class AuthService {
                 html: `
                     <h1> Restablecimiento de contraseña</h1>
                     <p>Has solicitado restablecer tu contraseña. Haz clic en el enlace para hacerlo</p>
-                    <a href="${ENVIRONMENT.URL_BACKEND + `/api/auth/reset-password/${reset_password_token}`}">Click aqui para restablecer</a>
+                    <a href="${ENVIRONMENT.URL_FRONTEND + `/reset-password/${reset_password_token}`}">Click aqui para restablecer</a>
                     <span>Si no reconoces este registro, desestima este mail.</span>
                 `
             })
         } catch (error) {
-            if (error instanceof ServerError) {
-                throw error
-            }
-            else {
-                throw new ServerError("Error al solicitar el restablecimiento de contraseña", 500)
-            }
+            if (error instanceof ServerError) throw error;
+            throw new ServerError("Error al solicitar el restablecimiento de contraseña", 500)
         }
     }
 
@@ -183,23 +191,19 @@ class AuthService {
             throw new ServerError("Todos los campos son obligatorios", 400)
         }
         try {
-            // 1. Decodificamos el token (sin verificar firma aún) para saber de qué usuario es
             const decoded = jwt.decode(reset_password_token);
             if (!decoded || !decoded.email) {
                 throw new ServerError("Token inválido", 400);
             }
 
-            // 2. Buscamos al usuario
             const user = await userRepository.getByEmail(decoded.email);
             if (!user) {
                 throw new ServerError("El usuario no existe", 404)
             }
 
-            // 3. Ahora SÍ verificamos la firma usando la clave secreta dinámica
             const secret = ENVIRONMENT.JWT_SECRET_KEY + user.password;
             jwt.verify(reset_password_token, secret);
 
-            // 4. Si la verificación pasa, actualizamos la contraseña
             const hashedPassword = await bcrypt.hash(password, 12);
             await userRepository.updateById(user._id, { password: hashedPassword });
 
@@ -216,5 +220,4 @@ class AuthService {
 }
 
 const authService = new AuthService()
-
 export default authService

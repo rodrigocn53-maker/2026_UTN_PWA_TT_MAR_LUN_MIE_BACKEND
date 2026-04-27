@@ -41,6 +41,23 @@ workspaceRouter.post(
     workspaceController.inviteMember
 )
 
+workspaceRouter.put(
+    '/:workspace_id',
+    verifyMemberWorkspaceRoleMiddleware(['owner', 'admin']),
+    workspaceController.update
+)
+
+workspaceRouter.delete(
+    '/:workspace_id',
+    verifyMemberWorkspaceRoleMiddleware(['owner']),
+    workspaceController.delete
+)
+
+workspaceRouter.delete(
+    '/:workspace_id/leave',
+    verifyMemberWorkspaceRoleMiddleware([]),
+    workspaceController.leave
+)
 
 workspaceRouter.use(
     '/:workspace_id/channels', 

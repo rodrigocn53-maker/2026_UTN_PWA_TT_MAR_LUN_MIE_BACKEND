@@ -11,6 +11,14 @@ const userSchema = new mongoose.Schema(
             required: true,
             unique: true
         },
+        username: {
+            type: String,
+            required: true
+        },
+        tag: {
+            type: String,
+            required: true
+        },
         password: {
             type: String,
             required: true
@@ -27,7 +35,11 @@ const userSchema = new mongoose.Schema(
         }
     }
 )
-//Lo asociamos a la coleccion de usuarios
+
+// Creamos un índice único compuesto por username y tag
+userSchema.index({ username: 1, tag: 1 }, { unique: true });
+
+// Lo asociamos a la coleccion de usuarios
 const User = mongoose.model('User', userSchema)
 
 export default User

@@ -6,6 +6,11 @@ import ENVIRONMENT from "../config/environment.config.js"
 import mailerTransporter from "../config/mailer.config.js"
 
 class MemberWorkspaceService {
+    async isMember(user_id, workspace_id) {
+        const member = await workspaceMemberRepository.getByWorkspaceAndUserId(workspace_id, user_id)
+        return !!member
+    }
+
     async getWorkspaces(user_id) {
         //traer la lista de espacios de trabajo relacionados a el usuario logueado
         const workspacesList = await workspaceMemberRepository.getWorkspaceListByUserId(user_id)
@@ -126,6 +131,17 @@ class MemberWorkspaceService {
             }
             throw error
         }
+    }
+    async leaveWorkspace(workspace_id, user_id) {
+        const member = await workspaceMemberRepository.getByWorkspaceAndUserId(workspace_id, user_id)
+        if (!member) {
+            throw new ServerError('No eres miembro de este espacio de trabajo', 404)
+        }
+        if (member.role === 'owner') {
+            throw new ServerError('El creador no puede abandonar el espacio de trabajo. Debe eliminarlo o transferirlo.', 400)
+        }
+        await workspaceMemberRepository.deleteById(member._id)
+        return true
     }
 }
 

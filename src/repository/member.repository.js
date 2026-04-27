@@ -105,7 +105,9 @@ class WorkspaceMemberRepository {
             const members = await WorkspaceMember.find({ fk_id_user: user_id })
                 .populate('fk_id_workspace')
 
-            const members_mapped = members.map(
+            const valid_members = members.filter(member => member.fk_id_workspace != null)
+
+            const members_mapped = valid_members.map(
                 (member) => {
                     return {
                         member_id: member._id,

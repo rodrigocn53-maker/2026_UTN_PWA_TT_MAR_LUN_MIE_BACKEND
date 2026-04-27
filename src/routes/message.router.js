@@ -1,6 +1,6 @@
 import express from 'express'
 import messageController from '../controllers/message.controller.js'
-import verifyMemberWorkspaceRoleMiddleware from '../middlewares/verifyMemberWorkspaceMiddleware'
+import verifyMemberWorkspaceRoleMiddleware from '../middlewares/verifyMemberWorkspaceMiddleware.js'
 
 const messageRouter = express.Router({mergeParams: true})
 

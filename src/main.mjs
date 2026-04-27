@@ -30,23 +30,26 @@ API es privada y los clientes son limitados y de confianza
 WHITE LIST DE DOMINIOS PERMITIDOS
 */
 const allowedDomains = [
-    'http://localhost:5173', //Frontend local
-    'http://localhost:5174', //Frontend local alternativo
-    ENVIRONMENT.URL_FRONTEND //Frontend desplegado (Traído desde el .env)
-]
+    'http://localhost:5173',
+    'http://localhost:5174',
+    ENVIRONMENT.URL_FRONTEND
+].filter(Boolean).map(domain => domain.replace(/\/$/, '')) // Eliminamos la barra final de los dominios configurados
 
 app.use(cors(
     {
-        // origin direccion de quien consulta 
         origin: (origin, callback) => {
-            //Si no hay origin (ej. Postman o llamadas locales)
+            // Si no hay origin (ej. Postman o llamadas locales)
             if (!origin) {
                 return callback(null, true)
             }
-            //Si el origin esta en la white list, permito la peticion
-            if (allowedDomains.includes(origin)) {
+
+            // Normalizamos el origin quitando barra final si la tuviera (aunque el navegador no suele enviarla)
+            const normalizedOrigin = origin.replace(/\/$/, '')
+
+            if (allowedDomains.includes(normalizedOrigin)) {
                 return callback(null, true)
             } else {
+                console.error('CORS Bloqueado para el origen:', origin)
                 return callback(new ServerError('No autorizado por CORS', 403))
             }
         },

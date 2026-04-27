@@ -38,10 +38,22 @@ class AuthController {
 
             res.cookie('auth_token', auth_token, cookieOptions);
 
+            const user = await userRepository.getByEmail(email);
+
             return res.status(200).json({
                 message: "Login successful",
                 status: 200,
-                ok: true
+                ok: true,
+                data: {
+                    user: {
+                        id: user._id,
+                        name: user.name,
+                        email: user.email,
+                        username: user.username,
+                        tag: user.tag,
+                        created_at: user.created_at
+                    }
+                }
             });
         }
         catch (error) {

@@ -22,7 +22,7 @@ class WorkspaceMemberRepository {
             if (error.code === 11000) {
                 throw new ServerError("El usuario ya es miembro de este espacio de trabajo", 400);
             }
-            throw new ServerError("Error al registrar el miembro en la base de datos", 500);
+            throw new ServerError("Surgió un error al procesar la invitación", 500);
         }
     }
 

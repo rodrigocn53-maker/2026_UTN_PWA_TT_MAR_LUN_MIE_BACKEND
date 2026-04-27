@@ -106,14 +106,14 @@ class AuthService {
     async login({ email, password }) {
         const user = await userRepository.getByEmail(email);
         if (!user) {
-            throw new ServerError('Usuario no encontrado', 404);
+            throw new ServerError('Email o contraseña incorrectos', 401);
         }
         if (!user.email_verified) {
             throw new ServerError('Usuario no verificado', 401);
         }
         const is_same_password = await bcrypt.compare(password, user.password)
         if (!is_same_password) {
-            throw new ServerError('Contraseña incorrecta', 401);
+            throw new ServerError('Email o contraseña incorrectos', 401);
         }
 
         const auth_token = jwt.sign(

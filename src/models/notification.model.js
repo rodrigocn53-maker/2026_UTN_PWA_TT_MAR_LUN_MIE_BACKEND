@@ -38,6 +38,11 @@ const notificationSchema = new mongoose.Schema(
             type: Date,
             default: Date.now,
             required: true
+        },
+        role: {
+            type: String,
+            enum: ['admin', 'user'],
+            default: 'user'
         }
     }
 )

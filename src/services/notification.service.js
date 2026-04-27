@@ -6,8 +6,8 @@ class NotificationService {
     async getUserNotifications(user_id) {
         return await notificationRepository.getByReceiverId(user_id);
     }
-
-    async createInvitation(sender_id, receiver_id, workspace_id) {
+    
+    async createInvitation(sender_id, receiver_id, workspace_id, role = 'user') {
         // Verificar si ya existe una invitación pendiente
         const existing = await notificationRepository.getByReceiverId(receiver_id);
         const alreadyInvited = existing.find(n => 
@@ -23,6 +23,7 @@ class NotificationService {
             sender_id,
             receiver_id,
             workspace_id,
+            role,
             type: 'workspace_invitation'
         });
     }
@@ -39,7 +40,7 @@ class NotificationService {
         }
 
         if (action === 'accepted') {
-            await memberWorkspaceService.create(user_id, notification.workspace_id, 'member');
+            await memberWorkspaceService.create(user_id, notification.workspace_id, notification.role || 'user');
         }
 
         return await notificationRepository.updateStatus(notification_id, action);

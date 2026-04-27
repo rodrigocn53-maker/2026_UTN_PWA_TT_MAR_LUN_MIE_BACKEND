@@ -92,7 +92,7 @@ class WorkspaceController {
                     throw new ServerError('El usuario ya es miembro de este espacio', 400);
                 }
 
-                await notificationService.createInvitation(req.user.id, invitedUser._id, workspace_id);
+                await notificationService.createInvitation(req.user.id, invitedUser._id, workspace_id, role);
             } else {
                 throw new ServerError('Formato de identificador inválido (usa Email o Nombre#TAG)', 400);
             }

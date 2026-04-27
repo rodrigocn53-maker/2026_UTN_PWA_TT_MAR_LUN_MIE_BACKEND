@@ -27,10 +27,11 @@ class AuthController {
             const { email, password, rememberMe } = req.body;
             const auth_token = await authService.login({ email, password })
 
+            const isProduction = process.env.NODE_ENV === 'production';
             const cookieOptions = {
                 httpOnly: true,
-                secure: process.env.NODE_ENV === 'production',
-                sameSite: 'lax',
+                secure: isProduction,
+                sameSite: isProduction ? 'none' : 'lax',
                 // If rememberMe is true, set maxAge to 7 days. Otherwise, omit it for a session cookie.
                 ...(rememberMe && { maxAge: 7 * 24 * 60 * 60 * 1000 })
             };

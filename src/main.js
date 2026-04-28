@@ -14,6 +14,15 @@ import notificationRouter from "./routes/notification.router.js"
 import searchRouter from "./routes/search.router.js"
 import userRouter from "./routes/user.router.js"
 import mailerTransporter from "./config/mailer.config.js"
+
+// Verificar conexión con el servidor de correos al arrancar
+mailerTransporter.verify((error, success) => {
+    if (error) {
+        console.error('[Mailer Error] Error de configuración:', error.message);
+    } else {
+        console.log('[Mailer Success] El servidor de correos está listo.');
+    }
+});
 import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import authMiddleware from "./middlewares/authMiddleware.js"
@@ -25,6 +34,9 @@ connectMongoDB()
 
 
 const app = express()
+
+// Servir archivos estáticos (para las imágenes y audios subidos)
+app.use('/public', express.static('public'));
 
 /* 
 API es privada y los clientes son limitados y de confianza

@@ -22,12 +22,25 @@ const channelMessagesSchema = new mongoose.Schema({
     },
     content: {
         type: String,
-        required: true
+        required: false
     },
     created_at: {
         type: Date,
         required: true,
         default: Date.now
+    },
+    is_edited: {
+        type: Boolean,
+        default: false
+    },
+    file_url: {
+        type: String,
+        default: null
+    },
+    file_type: {
+        type: String,
+        enum: ['image', 'audio', null],
+        default: null
     }
 })
 

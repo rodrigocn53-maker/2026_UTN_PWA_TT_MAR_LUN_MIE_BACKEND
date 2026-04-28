@@ -1,6 +1,7 @@
 import express from 'express'
 import messageController from '../controllers/message.controller.js'
 import verifyMemberWorkspaceRoleMiddleware from '../middlewares/verifyMemberWorkspaceMiddleware.js'
+import upload from '../middlewares/upload.middleware.js'
 
 const messageRouter = express.Router({mergeParams: true})
 
@@ -9,6 +10,7 @@ const messageRouter = express.Router({mergeParams: true})
 messageRouter.post(
     '/', 
     verifyMemberWorkspaceRoleMiddleware([]),
+    upload.single('file'),
     messageController.create
 )
 
@@ -16,6 +18,18 @@ messageRouter.get(
     '/', 
     verifyMemberWorkspaceRoleMiddleware([]),
     messageController.getByChannel
+)
+
+messageRouter.put(
+    '/:message_id',
+    verifyMemberWorkspaceRoleMiddleware([]),
+    messageController.update
+)
+
+messageRouter.delete(
+    '/:message_id',
+    verifyMemberWorkspaceRoleMiddleware([]),
+    messageController.delete
 )
 
 export default messageRouter

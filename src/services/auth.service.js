@@ -58,7 +58,10 @@ class AuthService {
             password: passwordHashed 
         });
         
-        await this.sendVerifyEmail({ email, name: `${username}#${tag}` })
+        // El envío de email se dispara en segundo plano para no demorar la respuesta al cliente
+        this.sendVerifyEmail({ email, name }).catch(error => {
+            console.error(`[Mail Error] Error completo al enviar a ${email}:`, error);
+        });
     }
 
     async verifyEmail({ verify_email_token }) {
@@ -143,10 +146,27 @@ class AuthService {
                 to: email,
                 subject: `Bienvenido verifica tu correo electronico`,
                 html: `
-                    <h1>Bienvenido</h1>
-                    <p>Te has registrado correctamente, necesitamos verificar tu correo electronico</p>
-                    <a href="${ENVIRONMENT.URL_BACKEND + `/api/auth/verify-email?verify_email_token=${verify_email_token}`}">Click aqui para verificar</a>
-                    <span>Si no reconoces este registro desestima este mail.</span>
+                    <div style="font-family: Helvetica, Arial, sans-serif; background-color: #f4f4f4; padding: 40px 0;">
+                        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <div style="background-color: #4A154B; padding: 20px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Slack</h1>
+                            </div>
+                            <div style="padding: 40px; text-align: center;">
+                                <h2 style="color: #1d1c1d; margin-bottom: 20px;">¡Verifica tu correo electrónico!</h2>
+                                <p style="color: #454245; font-size: 16px; line-height: 1.5; margin-bottom: 30px;">
+                                    Hola <strong>${name}</strong>,<br>
+                                    Te has registrado correctamente en Slack. Para empezar a colaborar, necesitamos verificar tu dirección de correo electrónico.
+                                </p>
+                                <a href="${ENVIRONMENT.URL_BACKEND}/api/auth/verify-email?verify_email_token=${verify_email_token}" 
+                                   style="display: inline-block; background-color: #4A154B; color: #ffffff; padding: 16px 32px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                                    Confirmar correo electrónico
+                                </a>
+                                <p style="color: #616061; font-size: 14px; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px;">
+                                    Si no has solicitado este registro, puedes ignorar este mensaje de forma segura.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 `
             }
         )
@@ -174,10 +194,26 @@ class AuthService {
                 to: email,
                 subject: "Restablecimiento de contraseña",
                 html: `
-                    <h1> Restablecimiento de contraseña</h1>
-                    <p>Has solicitado restablecer tu contraseña. Haz clic en el enlace para hacerlo</p>
-                    <a href="${ENVIRONMENT.URL_FRONTEND + `/reset-password/${reset_password_token}`}">Click aqui para restablecer</a>
-                    <span>Si no reconoces este registro, desestima este mail.</span>
+                    <div style="font-family: Helvetica, Arial, sans-serif; background-color: #f4f4f4; padding: 40px 0;">
+                        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                            <div style="background-color: #4A154B; padding: 20px; text-align: center;">
+                                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Slack</h1>
+                            </div>
+                            <div style="padding: 40px; text-align: center;">
+                                <h2 style="color: #1d1c1d; margin-bottom: 20px;">Restablece tu contraseña</h2>
+                                <p style="color: #454245; font-size: 16px; line-height: 1.5; margin-bottom: 30px;">
+                                    Has solicitado restablecer tu contraseña. Haz clic en el botón de abajo para elegir una nueva contraseña.
+                                </p>
+                                <a href="${ENVIRONMENT.URL_FRONTEND}/reset-password/${reset_password_token}" 
+                                   style="display: inline-block; background-color: #4A154B; color: #ffffff; padding: 16px 32px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                                    Restablecer contraseña
+                                </a>
+                                <p style="color: #616061; font-size: 14px; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px;">
+                                    Este enlace expirará en 15 minutos. Si no has solicitado este cambio, ignora este correo.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 `
             })
         } catch (error) {

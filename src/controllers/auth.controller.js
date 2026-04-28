@@ -1,5 +1,6 @@
 import userRepository from "../repository/user.repository.js";
 import authService from "../services/auth.service.js";
+import ENVIRONMENT from "../config/environment.config.js";
 
 class AuthController {
     async register(req, res, next) {
@@ -85,7 +86,7 @@ class AuthController {
 
             await authService.verifyEmail({ verify_email_token })
 
-            response.status(200).send(`<h1>Mail verificado exitosamente</h1>`)
+            response.redirect(`${ENVIRONMENT.URL_FRONTEND}/login?verified=true`)
         }
         catch (error) {
             next(error)

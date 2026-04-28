@@ -2,10 +2,14 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 
-// Asegurar que la carpeta de subidas existe
+// Asegurar que la carpeta de subidas existe (Solo local, en Vercel fallará pero no debe romper la app)
 const uploadDir = 'public/uploads';
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+} catch (error) {
+    console.warn("No se pudo crear la carpeta de uploads (esperado en Vercel):", error.message);
 }
 
 const storage = multer.diskStorage({

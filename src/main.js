@@ -43,30 +43,28 @@ API es privada y los clientes son limitados y de confianza
 WHITE LIST DE DOMINIOS PERMITIDOS
 */
 const allowedDomains = [
-    'http://localhost:5173', //Frontend local
-    'http://localhost:5174', //Frontend local alternativo
-    ENVIRONMENT.URL_FRONTEND //Frontend desplegado (Traído desde el .env)
+    'http://localhost:5173',
+    'http://localhost:5174',
+    ENVIRONMENT.URL_FRONTEND?.replace(/\/$/, ""), // Quita la barra final si existe
 ]
 
-app.use(cors(
-    {
-        // origin direccion de quien consulta 
-        origin: (origin, callback) => {
-            //Si no hay origin (ej. Postman o llamadas locales)
-            if (!origin) {
-                return callback(null, true)
-            }
-            //Si el origin esta en la white list, permito la peticion
-            if (allowedDomains.includes(origin)) {
-                return callback(null, true)
-            } else {
-                console.error('CORS Bloqueado para el origen:', origin)
-                return callback(new ServerError('No autorizado por CORS', 403))
-            }
-        },
-        credentials: true
-    }
-))
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin) return callback(null, true);
+        
+        // Si el origen está en la lista o es un subdominio de vercel.app del proyecto
+        const isAllowed = allowedDomains.includes(origin);
+        const isVercelPreview = origin.endsWith('.vercel.app') && origin.includes('2026-utn-pwa-tt-mar-lun-mie');
+
+        if (isAllowed || isVercelPreview) {
+            callback(null, true);
+        } else {
+            console.error('CORS Bloqueado para:', origin);
+            callback(new ServerError('No autorizado por CORS', 403));
+        }
+    },
+    credentials: true
+}));
 
 app.use(cookieParser())
 

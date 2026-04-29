@@ -141,37 +141,42 @@ class AuthService {
             ENVIRONMENT.JWT_SECRET_KEY,
             { expiresIn: '7d' }
         )
-        await mailerTransporter.sendMail(
-            {
-                from: ENVIRONMENT.MAIL_USER,
-                to: email,
-                subject: `Bienvenido verifica tu correo electronico`,
-                html: `
-                    <div style="font-family: Helvetica, Arial, sans-serif; background-color: #f4f4f4; padding: 40px 0;">
-                        <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                            <div style="background-color: #4A154B; padding: 20px; text-align: center;">
-                                <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Slack</h1>
-                            </div>
-                            <div style="padding: 40px; text-align: center;">
-                                <h2 style="color: #1d1c1d; margin-bottom: 20px;">¡Verifica tu correo electrónico!</h2>
-                                <p style="color: #454245; font-size: 16px; line-height: 1.5; margin-bottom: 30px;">
-                                    Hola <strong>${name}</strong>,<br>
-                                    Te has registrado correctamente en Slack. Para empezar a colaborar, necesitamos verificar tu dirección de correo electrónico.
-                                </p>
-                                <a href="${ENVIRONMENT.URL_BACKEND}/api/auth/verify-email?verify_email_token=${verify_email_token}" 
-                                   style="display: inline-block; background-color: #4A154B; color: #ffffff; padding: 16px 32px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 16px;">
-                                    Confirmar correo electrónico
-                                </a>
-                                <p style="color: #616061; font-size: 14px; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px;">
-                                    Si no has solicitado este registro, puedes ignorar este mensaje de forma segura.
-                                </p>
+        try {
+            const info = await mailerTransporter.sendMail(
+                {
+                    from: ENVIRONMENT.MAIL_USER,
+                    to: email,
+                    subject: `Bienvenido verifica tu correo electronico`,
+                    html: `
+                        <div style="font-family: Helvetica, Arial, sans-serif; background-color: #f4f4f4; padding: 40px 0;">
+                            <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                                <div style="background-color: #4A154B; padding: 20px; text-align: center;">
+                                    <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Slack</h1>
+                                </div>
+                                <div style="padding: 40px; text-align: center;">
+                                    <h2 style="color: #1d1c1d; margin-bottom: 20px;">¡Verifica tu correo electrónico!</h2>
+                                    <p style="color: #454245; font-size: 16px; line-height: 1.5; margin-bottom: 30px;">
+                                        Hola <strong>${name}</strong>,<br>
+                                        Te has registrado correctamente en Slack. Para empezar a colaborar, necesitamos verificar tu dirección de correo electrónico.
+                                    </p>
+                                    <a href="${ENVIRONMENT.URL_BACKEND}/api/auth/verify-email?verify_email_token=${verify_email_token}" 
+                                       style="display: inline-block; background-color: #4A154B; color: #ffffff; padding: 16px 32px; border-radius: 4px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                                        Confirmar correo electrónico
+                                    </a>
+                                    <p style="color: #616061; font-size: 14px; margin-top: 40px; border-top: 1px solid #ddd; padding-top: 20px;">
+                                        Si no has solicitado este registro, puedes ignorar este mensaje de forma segura.
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                `
-            }
-        )
-        console.log(`[Mail] Email enviado con éxito a: ${email}`);
+                    `
+                }
+            )
+            console.log(`[Mail] Email enviado con éxito a: ${email}. MessageId: ${info.messageId}`);
+        } catch (error) {
+            console.error(`[Mail Error] Falló el envío de email a ${email}:`, error);
+            throw error; // Lanzamos el error para que catch de register lo vea
+        }
     }
 
     async resetPasswordRequest({ email }) {

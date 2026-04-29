@@ -1,4 +1,5 @@
 import userRepository from "../repository/user.repository.js"
+import notificationService from "./notification.service.js"
 
 class UserService {
     async getAllUsers(excludeId) {
@@ -14,7 +15,16 @@ class UserService {
         if (String(userId) === String(contactId)) {
             throw new Error("No puedes agregarte a ti mismo como contacto");
         }
-        await userRepository.addContact(userId, contactId);
+
+        // Crear notificación de solicitud de contacto
+        await notificationService.createContactRequest(userId, contactId);
+        
+        // Agregar a la lista de pendientes del emisor para feedback visual
+        await userRepository.addPendingContact(userId, contactId);
+    }
+
+    async removeContact(userId, contactId) {
+        await userRepository.removeContact(userId, contactId);
     }
 
     async getContacts(userId) {

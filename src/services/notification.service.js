@@ -1,5 +1,6 @@
 import notificationRepository from "../repository/notification.repository.js";
 import memberWorkspaceService from "./memberWorkspace.service.js";
+import userRepository from "../repository/user.repository.js";
 import ServerError from "../helpers/error.helper.js";
 
 class NotificationService {
@@ -25,6 +26,24 @@ class NotificationService {
             workspace_id,
             role,
             type: 'workspace_invitation'
+        });
+    }
+
+    async createContactRequest(sender_id, receiver_id) {
+        const existing = await notificationRepository.getByReceiverId(receiver_id);
+        const alreadyRequested = existing.find(n => 
+            String(n.sender_id?._id || n.sender_id) === String(sender_id) && 
+            n.status === 'pending' && n.type === 'contact_request'
+        );
+
+        if (alreadyRequested) {
+            throw new ServerError("Ya has enviado una solicitud a este usuario", 400);
+        }
+
+        return await notificationRepository.create({
+            sender_id,
+            receiver_id,
+            type: 'contact_request'
         });
     }
 
@@ -61,14 +80,38 @@ class NotificationService {
         
         if (!notification) throw new ServerError("Notificación no encontrada", 404);
         if (String(notification.receiver_id) !== String(user_id)) {
-            throw new ServerError("No tienes permiso para responder a esta invitación", 403);
+            throw new ServerError("No tienes permiso para responder a esta notificación", 403);
         }
         if (notification.status !== 'pending') {
-            throw new ServerError("Esta invitación ya fue respondida", 400);
+            throw new ServerError("Esta notificación ya fue respondida", 400);
         }
 
-        if (action === 'accepted') {
-            await memberWorkspaceService.create(user_id, notification.workspace_id, notification.role || 'user');
+        if (notification.type === 'workspace_invitation') {
+            if (action === 'accepted') {
+                await memberWorkspaceService.create(user_id, notification.workspace_id, notification.role || 'user');
+            }
+        } else if (notification.type === 'contact_request') {
+            if (action === 'accepted') {
+                // Aceptar solicitud de contacto en ambos usuarios
+                await userRepository.acceptContactRequest(user_id, notification.sender_id);
+                
+                // Notificar al emisor original que fue aceptado
+                await notificationRepository.create({
+                    sender_id: user_id,
+                    receiver_id: notification.sender_id,
+                    type: 'contact_accepted'
+                });
+            } else if (action === 'rejected') {
+                // Remover de pendientes del emisor original
+                await userRepository.removePendingContact(notification.sender_id, user_id);
+
+                // Notificar al emisor original que fue rechazado
+                await notificationRepository.create({
+                    sender_id: user_id,
+                    receiver_id: notification.sender_id,
+                    type: 'contact_rejected'
+                });
+            }
         }
 
         return await notificationRepository.updateStatus(notification_id, action);

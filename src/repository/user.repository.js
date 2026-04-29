@@ -103,22 +103,68 @@ class UserRepository {
             throw new ServerError("Error al obtener la lista de usuarios", 500);
         }
     }
-    async addContact(user_id, contact_id) {
+    async addPendingContact(user_id, contact_id) {
         try {
             return await User.findByIdAndUpdate(
                 user_id,
-                { $addToSet: { contacts: contact_id } },
+                { $addToSet: { pending_contacts: contact_id } },
                 { new: true }
             );
         } catch (error) {
-            throw new ServerError("Error al agregar contacto", 500);
+            throw new ServerError("Error al agregar contacto pendiente", 500);
+        }
+    }
+
+    async removePendingContact(user_id, contact_id) {
+        try {
+            return await User.findByIdAndUpdate(
+                user_id,
+                { $pull: { pending_contacts: contact_id } },
+                { new: true }
+            );
+        } catch (error) {
+            throw new ServerError("Error al remover contacto pendiente", 500);
+        }
+    }
+
+    async acceptContactRequest(user_id, contact_id) {
+        try {
+            // Se agregan mutuamente como contactos y se remueve de pendientes si existía
+            await User.findByIdAndUpdate(user_id, { 
+                $addToSet: { contacts: contact_id },
+                $pull: { pending_contacts: contact_id }
+            });
+            await User.findByIdAndUpdate(contact_id, { 
+                $addToSet: { contacts: user_id },
+                $pull: { pending_contacts: user_id }
+            });
+        } catch (error) {
+            throw new ServerError("Error al aceptar solicitud de contacto", 500);
+        }
+    }
+
+    async removeContact(user_id, contact_id) {
+        try {
+            await User.findByIdAndUpdate(user_id, { 
+                $pull: { contacts: contact_id } 
+            });
+            await User.findByIdAndUpdate(contact_id, { 
+                $pull: { contacts: user_id } 
+            });
+        } catch (error) {
+            throw new ServerError("Error al eliminar contacto", 500);
         }
     }
 
     async getContacts(user_id) {
         try {
-            const user = await User.findById(user_id).populate('contacts', 'name username tag email');
-            return user?.contacts || [];
+            const user = await User.findById(user_id)
+                .populate('contacts', 'name username tag email')
+                .populate('pending_contacts', 'name username tag email');
+            return {
+                accepted: user?.contacts || [],
+                pending: user?.pending_contacts || []
+            };
         } catch (error) {
             throw new ServerError("Error al obtener contactos", 500);
         }

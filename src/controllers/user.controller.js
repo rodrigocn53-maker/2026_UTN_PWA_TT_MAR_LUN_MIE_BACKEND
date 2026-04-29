@@ -32,6 +32,21 @@ class UserController {
         }
     }
 
+    async removeContact(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { contact_id } = req.params;
+            await userService.removeContact(userId, contact_id);
+            res.status(200).json({
+                ok: true,
+                status: 200,
+                message: 'Contacto eliminado correctamente'
+            });
+        } catch (error) {
+            next(error)
+        }
+    }
+
     async getContacts(req, res, next) {
         try {
             const userId = req.user.id;

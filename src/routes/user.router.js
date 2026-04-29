@@ -8,6 +8,7 @@ userRouter.use(authMiddleware)
 
 userRouter.get('/', userController.getAllUsers)
 userRouter.post('/contacts', userController.addContact)
+userRouter.delete('/contacts/:contact_id', userController.removeContact)
 userRouter.get('/contacts', userController.getContacts)
 
 export default userRouter

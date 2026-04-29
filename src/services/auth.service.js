@@ -58,11 +58,17 @@ class AuthService {
             password: passwordHashed 
         });
         
-        // El envío de email se dispara en segundo plano para no demorar la respuesta al cliente
+        // En entornos Serverless como Vercel, DEBEMOS usar await.
+        // Si no usamos await, Vercel "congela" el proceso apenas enviamos la respuesta HTTP
+        // y el correo electrónico nunca se enviará.
         console.log(`[Mail] Intentando enviar email de verificación a: ${email}`);
-        this.sendVerifyEmail({ email, name }).catch(error => {
+        try {
+            await this.sendVerifyEmail({ email, name });
+        } catch (error) {
             console.error(`[Mail Error] Error completo al enviar a ${email}:`, error);
-        });
+            // Opcional: Podrías lanzar un error aquí si quieres que el registro falle si el email falla
+            // throw new ServerError("Error al enviar el email de verificación", 500);
+        }
     }
 
     async verifyEmail({ verify_email_token }) {

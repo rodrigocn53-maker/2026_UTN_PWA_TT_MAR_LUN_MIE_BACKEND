@@ -51,6 +51,10 @@ class MemberWorkspaceService {
             throw new ServerError('El usuario invitado no existe', 404)
         }
 
+        if (!invitedUser.email_verified) {
+            throw new ServerError('El usuario aún no ha verificado su cuenta', 400)
+        }
+
         const existingMember = await workspaceMemberRepository.getByWorkspaceAndUserId(workspace_id, invitedUser._id)
         if (existingMember) {
             if (existingMember.acceptInvitation === 'pending') {
@@ -170,6 +174,30 @@ class MemberWorkspaceService {
         }
         await workspaceMemberRepository.deleteById(member._id)
         return true
+    }
+
+    async updateRole(workspace_id, user_id, new_role, request_user_id) {
+        const targetMember = await workspaceMemberRepository.getByWorkspaceAndUserId(workspace_id, user_id);
+        if (!targetMember) {
+            throw new ServerError('Usuario no es miembro del espacio', 404);
+        }
+        if (targetMember.role === 'owner') {
+            throw new ServerError('No se puede cambiar el rol del propietario', 400);
+        }
+        await workspaceMemberRepository.updateRoleById(targetMember._id, new_role);
+        return true;
+    }
+
+    async removeMember(workspace_id, user_id, request_user_id) {
+        const targetMember = await workspaceMemberRepository.getByWorkspaceAndUserId(workspace_id, user_id);
+        if (!targetMember) {
+            throw new ServerError('Usuario no es miembro del espacio', 404);
+        }
+        if (targetMember.role === 'owner') {
+            throw new ServerError('No se puede eliminar al propietario', 400);
+        }
+        await workspaceMemberRepository.deleteById(targetMember._id);
+        return true;
     }
 }
 

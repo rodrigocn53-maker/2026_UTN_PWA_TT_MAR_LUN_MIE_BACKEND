@@ -6,6 +6,7 @@ const notificationRouter = express.Router();
 
 notificationRouter.get('/', authMiddleware, notificationController.getMyNotifications);
 notificationRouter.put('/mark-read', authMiddleware, notificationController.markAsRead);
+notificationRouter.put('/:notification_id/read', authMiddleware, notificationController.markSingleAsRead);
 notificationRouter.put('/:notification_id/respond', authMiddleware, notificationController.respond);
 
 export default notificationRouter;

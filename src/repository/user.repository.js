@@ -96,7 +96,7 @@ class UserRepository {
 
     async getAll(excludeId) {
         try {
-            return await User.find({ _id: { $ne: excludeId } })
+            return await User.find({ _id: { $ne: excludeId }, email_verified: true })
                 .select('name username tag email')
                 .sort({ name: 1 });
         } catch (error) {

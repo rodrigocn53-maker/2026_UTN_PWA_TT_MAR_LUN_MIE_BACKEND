@@ -165,6 +165,35 @@ class WorkspaceController {
             next(error)
         }
     }
+
+    async updateRole(req, res, next) {
+        const { workspace_id, user_id } = req.params;
+        const { role } = req.body;
+        try {
+            await memberWorkspaceService.updateRole(workspace_id, user_id, role, req.user.id);
+            res.status(200).json({
+                ok: true,
+                status: 200,
+                message: 'Rol actualizado con éxito'
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async removeMember(req, res, next) {
+        const { workspace_id, user_id } = req.params;
+        try {
+            await memberWorkspaceService.removeMember(workspace_id, user_id, req.user.id);
+            res.status(200).json({
+                ok: true,
+                status: 200,
+                message: 'Miembro eliminado con éxito'
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 const workspaceController = new WorkspaceController()

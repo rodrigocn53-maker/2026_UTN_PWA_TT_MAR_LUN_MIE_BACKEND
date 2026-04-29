@@ -12,7 +12,8 @@ class MessageController {
             let file_type = null;
 
             if (req.file) {
-                file_url = `/public/uploads/${req.file.filename}`;
+                // Cloudinary returns the full URL in req.file.path
+                file_url = req.file.path;
                 file_type = req.file.mimetype.startsWith('image/') ? 'image' : 'audio';
             }
 

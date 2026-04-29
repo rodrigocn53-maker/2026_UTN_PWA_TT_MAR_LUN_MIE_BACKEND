@@ -59,6 +59,7 @@ class AuthService {
         });
         
         // El envío de email se dispara en segundo plano para no demorar la respuesta al cliente
+        console.log(`[Mail] Intentando enviar email de verificación a: ${email}`);
         this.sendVerifyEmail({ email, name }).catch(error => {
             console.error(`[Mail Error] Error completo al enviar a ${email}:`, error);
         });
@@ -170,6 +171,7 @@ class AuthService {
                 `
             }
         )
+        console.log(`[Mail] Email enviado con éxito a: ${email}`);
     }
 
     async resetPasswordRequest({ email }) {

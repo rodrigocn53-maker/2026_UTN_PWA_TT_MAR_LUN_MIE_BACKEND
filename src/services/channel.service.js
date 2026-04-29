@@ -39,6 +39,14 @@ class ChannelService {
         return channel
     }
 
+    async update(workspace_id, channel_id, name, description) {
+        if (!workspace_id || !channel_id || !name) {
+            throw new ServerError("Faltan campos obligatorios", 400)
+        }
+        const channel = await channelRepository.update(channel_id, name, description)
+        return channel
+    }
+
     async delete(workspace_id, channel_id) {
 
         if(!workspace_id || !channel_id) {

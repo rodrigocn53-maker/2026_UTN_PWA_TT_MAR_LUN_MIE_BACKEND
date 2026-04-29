@@ -63,6 +63,27 @@ class ChannelController {
         }
     }
 
+    async update(req, res, next) {
+        try {
+            const { workspace, channel } = req
+            const { name, description } = req.body
+            const updated_channel = await channelService.update(workspace._id, channel.channel_id, name, description)
+
+            res.status(200).json(
+                {
+                    ok: true,
+                    status: 200,
+                    message: 'Canal actualizado exitosamente',
+                    data: {
+                        channel: updated_channel
+                    }
+                }
+            )
+        } catch (error) {
+            next(error)
+        }
+    }
+
     async softDelete(req, res, next) {
         try {
             const { workspace, channel } = req

@@ -25,6 +25,16 @@ channelRouter.get(
     channelController.getAll
 )
 
+channelRouter.put(
+    '/:channel_id',
+    verifyMemberWorkspaceRoleMiddleware(
+        [AVIABLE_MEMBER_ROLES.OWNER],
+        [AVIABLE_MEMBER_ROLES.ADMIN]
+    ),
+    verifyChannelMiddleware,
+    channelController.update
+)
+
 channelRouter.delete(
     '/:channel_id', 
      verifyMemberWorkspaceRoleMiddleware(

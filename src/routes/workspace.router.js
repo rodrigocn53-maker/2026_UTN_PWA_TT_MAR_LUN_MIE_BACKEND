@@ -59,6 +59,18 @@ workspaceRouter.delete(
     workspaceController.leave
 )
 
+workspaceRouter.put(
+    '/:workspace_id/member/:user_id/role',
+    verifyMemberWorkspaceRoleMiddleware(['owner', 'admin']),
+    workspaceController.updateRole
+)
+
+workspaceRouter.delete(
+    '/:workspace_id/member/:user_id',
+    verifyMemberWorkspaceRoleMiddleware(['owner', 'admin']),
+    workspaceController.removeMember
+)
+
 workspaceRouter.use(
     '/:workspace_id/channels', 
     channelRouter

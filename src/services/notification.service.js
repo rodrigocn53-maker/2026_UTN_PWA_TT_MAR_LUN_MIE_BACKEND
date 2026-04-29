@@ -11,8 +11,8 @@ class NotificationService {
         // Verificar si ya existe una invitación pendiente
         const existing = await notificationRepository.getByReceiverId(receiver_id);
         const alreadyInvited = existing.find(n => 
-            String(n.workspace_id._id) === String(workspace_id) && 
-            n.status === 'pending'
+            String(n.workspace_id?._id || n.workspace_id) === String(workspace_id) && 
+            n.status === 'pending' && n.type === 'workspace_invitation'
         );
         
         if (alreadyInvited) {
@@ -26,6 +26,34 @@ class NotificationService {
             role,
             type: 'workspace_invitation'
         });
+    }
+
+    async notifyChannelMessage(workspace_id, channel_id, sender_id) {
+        // Obtenemos todos los miembros del workspace
+        const members = await memberWorkspaceService.getMemberList(workspace_id);
+        
+        for (const member of members) {
+            // No notificar al que envió el mensaje
+            if (String(member.user_id) === String(sender_id)) continue;
+
+            const receiver_id = member.user_id;
+            
+            const pendingNotif = await notificationRepository.getPendingChannelNotification(receiver_id, channel_id);
+            
+            if (pendingNotif) {
+                await notificationRepository.incrementMessageCount(pendingNotif._id, sender_id);
+            } else {
+                await notificationRepository.create({
+                    sender_id,
+                    receiver_id,
+                    workspace_id,
+                    channel_id,
+                    type: 'channel_message',
+                    status: 'pending',
+                    message_count: 1
+                });
+            }
+        }
     }
 
     async respondToInvitation(notification_id, user_id, action) {
@@ -48,6 +76,15 @@ class NotificationService {
 
     async markNotificationsAsRead(user_id) {
         await notificationRepository.markAllAsRead(user_id);
+    }
+
+    async markNotificationAsRead(notification_id, user_id) {
+        const notification = await notificationRepository.getById(notification_id);
+        if (!notification) throw new ServerError("Notificación no encontrada", 404);
+        if (String(notification.receiver_id) !== String(user_id)) {
+            throw new ServerError("No tienes permiso para marcar esta notificación", 403);
+        }
+        return await notificationRepository.markAsReadById(notification_id);
     }
 }
 

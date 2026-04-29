@@ -42,6 +42,20 @@ class NotificationController {
             next(error);
         }
     }
+
+    async markSingleAsRead(req, res, next) {
+        try {
+            const { notification_id } = req.params;
+            await notificationService.markNotificationAsRead(notification_id, req.user.id);
+            res.json({
+                ok: true,
+                status: 200,
+                message: "Notificación marcada como leída"
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 const notificationController = new NotificationController();

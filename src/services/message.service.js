@@ -2,6 +2,7 @@ import ServerError from "../helpers/error.helper.js"
 import messageRepository from "../repository/message.repository.js"
 import workspaceMemberRepository from "../repository/member.repository.js"
 import channelRepository from "../repository/channel.repository.js"
+import notificationService from "./notification.service.js"
 
 class MessageService {
     async create(workspace_id, channel_id, user_id, content, file_url = null, file_type = null) {
@@ -21,6 +22,11 @@ class MessageService {
 
         const message = await messageRepository.create(channel_id, member._id, content, file_url, file_type)
         await channelRepository.updateLastMessageAt(channel_id)
+
+        // Enviar notificación a los demás miembros
+        notificationService.notifyChannelMessage(workspace_id, channel_id, user_id).catch(err => {
+            console.error("Error al notificar mensaje de canal:", err)
+        })
 
         return {
             id: message._id,
@@ -105,13 +111,41 @@ class MessageService {
             throw new ServerError("Mensaje no encontrado", 404)
         }
 
-        if (String(message.fk_id_member.fk_id_user._id) !== String(user_id)) {
+        const member = await workspaceMemberRepository.getByWorkspaceAndUserId(workspace_id, user_id)
+        const isAdminOrOwner = member && (member.member_role === 'admin' || member.member_role === 'owner')
+
+        if (String(message.fk_id_member.fk_id_user._id) !== String(user_id) && !isAdminOrOwner) {
             throw new ServerError("No tienes permiso para eliminar este mensaje", 403)
         }
 
         const diffInMinutes = (new Date() - new Date(message.created_at)) / 1000 / 60
-        if (diffInMinutes > 2) {
-            throw new ServerError("El tiempo límite para eliminar este mensaje ha expirado (2 min)", 403)
+        if (diffInMinutes > 5 && !isAdminOrOwner) {
+            throw new ServerError("El tiempo límite para eliminar este mensaje ha expirado (5 min)", 403)
+        }
+
+        if (message.file_url && message.file_url.includes('cloudinary.com')) {
+            try {
+                const { v2: cloudinary } = await import('cloudinary');
+                cloudinary.config({
+                    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+                    api_key: process.env.CLOUDINARY_API_KEY,
+                    api_secret: process.env.CLOUDINARY_API_SECRET
+                });
+
+                const parts = message.file_url.split('/upload/');
+                if (parts.length > 1) {
+                    let path = parts[1];
+                    if (path.match(/^v\d+\//)) {
+                        path = path.replace(/^v\d+\//, '');
+                    }
+                    const publicId = path.substring(0, path.lastIndexOf('.'));
+                    const resourceType = message.file_type === 'image' ? 'image' : 'video'; // Audio es 'video' en Cloudinary
+                    
+                    await cloudinary.uploader.destroy(publicId, { resource_type: resourceType });
+                }
+            } catch (err) {
+                console.error("Error al eliminar archivo de Cloudinary:", err);
+            }
         }
 
         await messageRepository.delete(message_id)

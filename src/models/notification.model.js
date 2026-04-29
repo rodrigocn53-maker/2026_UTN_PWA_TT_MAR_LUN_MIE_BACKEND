@@ -19,9 +19,18 @@ const notificationSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ['workspace_invitation'],
+            enum: ['workspace_invitation', 'channel_message'],
             default: 'workspace_invitation',
             required: true
+        },
+        channel_id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Channel',
+            required: false
+        },
+        message_count: {
+            type: Number,
+            default: 1
         },
         status: {
             type: String,

@@ -65,6 +65,22 @@ class ChannelRepository {
         }
     }
 
+    async update(channel_id, name, description) {
+        try {
+            const channel = await ChannelModel.findByIdAndUpdate(
+                channel_id,
+                { name, description },
+                { new: true }
+            )
+            return channel && new ChannelDTO(channel)
+        } catch (error) {
+            if (error.code === 11000) {
+                throw new ServerError("Ya existe un canal con ese nombre en este espacio de trabajo", 400);
+            }
+            throw new ServerError("Error al actualizar el canal", 500);
+        }
+    }
+
     async delete(channel_id) {
         try {
             const channel = await ChannelModel.findByIdAndDelete(

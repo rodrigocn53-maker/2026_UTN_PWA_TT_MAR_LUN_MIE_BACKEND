@@ -103,6 +103,26 @@ class UserRepository {
             throw new ServerError("Error al obtener la lista de usuarios", 500);
         }
     }
+    async addContact(user_id, contact_id) {
+        try {
+            return await User.findByIdAndUpdate(
+                user_id,
+                { $addToSet: { contacts: contact_id } },
+                { new: true }
+            );
+        } catch (error) {
+            throw new ServerError("Error al agregar contacto", 500);
+        }
+    }
+
+    async getContacts(user_id) {
+        try {
+            const user = await User.findById(user_id).populate('contacts', 'name username tag email');
+            return user?.contacts || [];
+        } catch (error) {
+            throw new ServerError("Error al obtener contactos", 500);
+        }
+    }
 }
 
 

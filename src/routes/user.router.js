@@ -7,5 +7,7 @@ const userRouter = Router()
 userRouter.use(authMiddleware)
 
 userRouter.get('/', userController.getAllUsers)
+userRouter.post('/contacts', userController.addContact)
+userRouter.get('/contacts', userController.getContacts)
 
 export default userRouter

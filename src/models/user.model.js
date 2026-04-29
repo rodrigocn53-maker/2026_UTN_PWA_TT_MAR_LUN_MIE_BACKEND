@@ -32,7 +32,13 @@ const userSchema = new mongoose.Schema(
             type: Date,
             required: true,
             default: Date.now
-        }
+        },
+        contacts: [
+            {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: 'User'
+            }
+        ]
     }
 )
 

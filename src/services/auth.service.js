@@ -1,15 +1,10 @@
-//Responsabilidad de manejar la logica de negocio
-/* 
-Registro:
-    - Validar que no exista previamente el usuario
-    - Enviar un mail de verificacion de correo electronico
-*/
 import jwt from 'jsonwebtoken'
 import ENVIRONMENT from "../config/environment.config.js";
 import mailerTransporter from "../config/mailer.config.js";
 import ServerError from "../helpers/error.helper.js";
 import userRepository from "../repository/user.repository.js";
 import bcrypt from 'bcryptjs'
+import JWTHelper from '../helpers/jwt.helper.js';
 
 class AuthService {
     generateRandomTag() {
@@ -58,16 +53,11 @@ class AuthService {
             password: passwordHashed 
         });
         
-        // En entornos Serverless como Vercel, DEBEMOS usar await.
-        // Si no usamos await, Vercel "congela" el proceso apenas enviamos la respuesta HTTP
-        // y el correo electrónico nunca se enviará.
         console.log(`[Mail] Intentando enviar email de verificación a: ${email}`);
         try {
             await this.sendVerifyEmail({ email, name });
         } catch (error) {
             console.error(`[Mail Error] Error completo al enviar a ${email}:`, error);
-            // Opcional: Podrías lanzar un error aquí si quieres que el registro falle si el email falla
-            // throw new ServerError("Error al enviar el email de verificación", 500);
         }
     }
 
@@ -77,7 +67,7 @@ class AuthService {
         }
 
         try {
-            const { email } = jwt.verify(verify_email_token, ENVIRONMENT.JWT_SECRET_KEY)
+            const { email } = JWTHelper.verify(verify_email_token)
             const user = await userRepository.getByEmail(email)
             if (!user) {
                 throw new ServerError('El usuario no existe', 404)
@@ -100,8 +90,8 @@ class AuthService {
         }
         catch (error) {
             if (error instanceof jwt.TokenExpiredError) {
-                const { email, name } = jwt.decode(verify_email_token)
-                await this.sendVerifyEmail({ email, name })
+                const decoded = JWTHelper.decode(verify_email_token)
+                if(decoded) await this.sendVerifyEmail({ email: decoded.email, name: decoded.name })
                 throw new ServerError('El token de verificacion expiro', 401)
             }
             else if (error instanceof jwt.JsonWebTokenError) {
@@ -126,27 +116,14 @@ class AuthService {
             throw new ServerError('Email o contraseña incorrectos', 401);
         }
 
-        const auth_token = jwt.sign(
-            {
-                email: user.email,
-                name: user.name,
-                username: user.username,
-                tag: user.tag,
-                id: user._id,
-                created_at: user.created_at
-            },
-            ENVIRONMENT.JWT_SECRET_KEY,
-            { expiresIn: '7d' }
-        )
+        const payload = JWTHelper.createAuthPayload(user);
+        const auth_token = JWTHelper.sign(payload, '7d');
+        
         return auth_token
     }
 
     async sendVerifyEmail({ email, name }) {
-        const verify_email_token = jwt.sign(
-            { email: email },
-            ENVIRONMENT.JWT_SECRET_KEY,
-            { expiresIn: '7d' }
-        )
+        const verify_email_token = JWTHelper.sign({ email, name }, '7d')
         try {
             const info = await mailerTransporter.sendMail(
                 {
@@ -196,11 +173,7 @@ class AuthService {
             }
 
             const secret = ENVIRONMENT.JWT_SECRET_KEY + user.password;
-            const reset_password_token = jwt.sign(
-                { email },
-                secret,
-                { expiresIn: "15m" }
-            )
+            const reset_password_token = JWTHelper.sign({ email }, '15m', secret);
 
             await mailerTransporter.sendMail({
                 from: ENVIRONMENT.MAIL_USER,
@@ -240,7 +213,7 @@ class AuthService {
             throw new ServerError("Todos los campos son obligatorios", 400)
         }
         try {
-            const decoded = jwt.decode(reset_password_token);
+            const decoded = JWTHelper.decode(reset_password_token);
             if (!decoded || !decoded.email) {
                 throw new ServerError("Token inválido", 400);
             }
@@ -251,7 +224,7 @@ class AuthService {
             }
 
             const secret = ENVIRONMENT.JWT_SECRET_KEY + user.password;
-            jwt.verify(reset_password_token, secret);
+            JWTHelper.verify(reset_password_token, secret);
 
             const hashedPassword = await bcrypt.hash(password, 12);
             await userRepository.updateById(user._id, { password: hashedPassword });

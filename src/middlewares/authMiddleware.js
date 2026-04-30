@@ -1,18 +1,23 @@
 import jwt from 'jsonwebtoken'
 import ENVIRONMENT from '../config/environment.config.js'
 import ServerError from '../helpers/error.helper.js'
+import JWTHelper from '../helpers/jwt.helper.js'
 
 function authMiddleware(request, response, next) {
     try {
-        // El token se envía en la cookie HttpOnly
-        const auth_token = request.cookies?.auth_token;
+        // El token se envía en la cookie HttpOnly o en el header Authorization
+        let auth_token = request.cookies?.auth_token;
+
+        if (!auth_token && request.headers.authorization) {
+            auth_token = request.headers.authorization.split(' ')[1];
+        }
 
         if(!auth_token){
             throw new ServerError('Token faltante o invalido', 401)
         }
 
         //Valido el token
-        const payload = jwt.verify(auth_token, ENVIRONMENT.JWT_SECRET_KEY)
+        const payload = JWTHelper.verify(auth_token)
 
         //IMPORTANTE!!!, guardo en la request la sesion del usuario
         request.user = payload

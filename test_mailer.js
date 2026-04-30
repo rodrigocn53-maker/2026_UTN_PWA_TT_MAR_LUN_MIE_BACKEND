@@ -18,3 +18,7 @@ async function testMail() {
 }
 
 testMail();
+
+//Test de Envio de mail por Soporte Tecnico
+//node test_mailer.js
+//Da aviso a soporte mediante un mail

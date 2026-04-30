@@ -1,7 +1,5 @@
 import ENVIRONMENT from "./config/environment.config.js"
 import connectMongoDB from "./config/mongoDB.config.js"
-/* import User from "./models/user.model.js"
-import Workspace from "./models/workspace.model.js" */
 import WorkspaceMember from "./models/workspaceMember.model.js"
 import workspaceMemberRepository from "./repository/member.repository.js"
 import userRepository from "./repository/user.repository.js"
@@ -39,10 +37,6 @@ const app = express()
 // Servir archivos estáticos (para las imágenes y audios subidos)
 app.use('/public', express.static('public'));
 
-/* 
-API es privada y los clientes son limitados y de confianza
-WHITE LIST DE DOMINIOS PERMITIDOS
-*/
 const allowedDomains = [
     'http://localhost:5173',
     'http://localhost:5174',
@@ -69,37 +63,9 @@ app.use(cors({
 
 app.use(cookieParser())
 
-/* 
-API es publica y los clientes son ilimitados
-BLACK LIST DE DOMINIOS PROHIBIDOS (Comentado para arreglar el error de fetch)
-*/
-/*
-const blockedOrgins = [
-    'http://localhost:5173' //Front esta bloqueado
-]
-app.use(
-    cors(
-        {
-            origin: (origin, callback) => {
-                if (blockedOrgins.includes(origin)) {
-                    callback(new ServerError('No autorizado', 403))
-                } else {
-                    callback(null, true)
-                }
-            }
-        }
-    )
-)
-*/
-
-// app.use(cors()) // CORS Global desactivado, ahora usamos la White List de arriba.
-
 app.use(express.json())
 
 
-/* 
-Delegamos las consultas que vengan sobre '/api/health' al healthRouter
-*/
 app.use('/api/health', healthRouter)
 app.use('/api/auth', authRouter)
 app.use('/api/workspace', workspaceRouter)
@@ -125,8 +91,6 @@ app.get(
     }
 )
 
-//Siempre debe ir al final de todos los endpoints, rutas o middlewares
-//Para poder dar uso correcto, nuestros controladores ahora seran "middlewares"
 app.use(
     errorHandlerMiddleware
 )

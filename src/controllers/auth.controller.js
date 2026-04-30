@@ -46,6 +46,7 @@ class AuthController {
                 status: 200,
                 ok: true,
                 data: {
+                    access_token: auth_token,
                     user: {
                         id: user._id,
                         name: user.name,
@@ -134,6 +135,7 @@ class AuthController {
                 status: 200,
                 message: "Token is valid",
                 data: {
+                    access_token: req.cookies?.auth_token || req.headers.authorization?.split(' ')[1],
                     user: {
                         id: user._id,
                         name: user.name,
@@ -152,17 +154,3 @@ class AuthController {
 }
 const authController = new AuthController();
 export default authController
-
-/* 
-Hacer el flujo de restablecimiento de contraseña
-
-    POST /api/auth/reset-password-request
-    body: {email}
-    Esto enviara un mail al email proporcionado con un link para restablecer la password, ese link tendra un JWT firmado con datos del usuario como el email o id.
-    
-Por otro lado desarrollaran el 
-    POST /api/auth/reset-password/:reset_token
-    body: {new_password}
-    El backend valida el token enviado y la nueva contraseña, si todo esta bien cambia la password
-
-*/

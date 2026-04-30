@@ -30,6 +30,19 @@ class UserService {
     async getContacts(userId) {
         return await userRepository.getContacts(userId);
     }
+
+    async updateProfile(userId, { name, avatar, avatar_config }) {
+        const updateData = {};
+        if (name) updateData.name = name;
+        if (avatar) updateData.avatar = avatar;
+        if (avatar_config) updateData.avatar_config = avatar_config;
+
+        if (Object.keys(updateData).length === 0) {
+            throw new Error("No se proporcionaron datos para actualizar");
+        }
+
+        return await userRepository.updateById(userId, updateData);
+    }
 }
 
 const userService = new UserService()

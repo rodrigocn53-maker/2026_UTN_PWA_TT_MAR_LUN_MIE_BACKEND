@@ -61,6 +61,47 @@ class UserController {
             next(error)
         }
     }
+
+    async updateProfile(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { name, avatar_config } = req.body;
+            
+            // Si hay un archivo (gracias al middleware de multer/cloudinary), usamos su URL
+            const avatar = req.file ? req.file.path : undefined;
+
+            // Parsear avatar_config si viene como string (form-data lo envía como string)
+            let parsedConfig = avatar_config;
+            if (typeof avatar_config === 'string') {
+                try {
+                    parsedConfig = JSON.parse(avatar_config);
+                } catch (e) {
+                    parsedConfig = undefined;
+                }
+            }
+
+            const updatedUser = await userService.updateProfile(userId, { 
+                name, 
+                avatar, 
+                avatar_config: parsedConfig 
+            });
+
+            res.status(200).json({
+                ok: true,
+                status: 200,
+                message: 'Perfil actualizado correctamente',
+                data: {
+                    user: {
+                        name: updatedUser.name,
+                        avatar: updatedUser.avatar,
+                        avatar_config: updatedUser.avatar_config
+                    }
+                }
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 const userController = new UserController()

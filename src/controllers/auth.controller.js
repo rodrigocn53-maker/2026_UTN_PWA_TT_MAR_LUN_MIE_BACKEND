@@ -53,6 +53,8 @@ class AuthController {
                         email: user.email,
                         username: user.username,
                         tag: user.tag,
+                        avatar: user.avatar,
+                        avatar_config: user.avatar_config,
                         created_at: user.created_at
                     }
                 }
@@ -142,6 +144,8 @@ class AuthController {
                         email: user.email,
                         username: user.username,
                         tag: user.tag,
+                        avatar: user.avatar,
+                        avatar_config: user.avatar_config,
                         created_at: user.created_at
                     }
                 }

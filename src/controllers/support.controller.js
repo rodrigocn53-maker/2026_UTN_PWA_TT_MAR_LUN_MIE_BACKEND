@@ -12,6 +12,7 @@ class SupportController {
             const name = req.user?.name || bodyName;
             const username = req.user?.username;
             const tag = req.user?.tag;
+            const userId = req.user?.id;
 
             if (!problem || !description) {
                 throw new ServerError("El problema y la descripción son requeridos", 400);
@@ -21,18 +22,22 @@ class SupportController {
                 throw new ServerError("Tu nombre y correo electrónico son requeridos para poder contactarte", 400);
             }
 
-            await supportService.sendSupportTicket({ 
+            const result = await supportService.sendSupportTicket({ 
                 problem, 
                 description, 
                 email, 
                 name, 
                 username, 
-                tag 
+                tag,
+                userId
             });
 
             res.status(200).json({
                 ok: true,
-                message: "Tu ticket de soporte ha sido enviado con éxito. Estaremos en contacto pronto."
+                message: "Tu ticket de soporte ha sido enviado con éxito. Estaremos en contacto pronto.",
+                data: {
+                    ticketId: result.ticketId
+                }
             });
         } catch (error) {
             next(error);

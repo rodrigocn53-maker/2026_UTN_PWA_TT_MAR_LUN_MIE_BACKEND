@@ -79,7 +79,7 @@ class WorkspaceMemberRepository {
     async getMemberList(fk_id_workspace) {
         try {
             const members = await WorkspaceMember.find({ fk_id_workspace: fk_id_workspace })
-                .populate('fk_id_user', 'name email')
+                .populate('fk_id_user', 'name email avatar avatar_config')
 
             const members_mapped = members.map(
                 (member) => {
@@ -90,7 +90,9 @@ class WorkspaceMemberRepository {
 
                         user_id: member.fk_id_user._id,
                         user_name: member.fk_id_user.name,
-                        user_email: member.fk_id_user.email
+                        user_email: member.fk_id_user.email,
+                        user_avatar: member.fk_id_user.avatar,
+                        user_avatar_config: member.fk_id_user.avatar_config
                     }
                 }
             )

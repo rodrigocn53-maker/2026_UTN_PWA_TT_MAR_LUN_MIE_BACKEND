@@ -97,7 +97,7 @@ class UserRepository {
     async getAll(excludeId) {
         try {
             return await User.find({ _id: { $ne: excludeId }, email_verified: true })
-                .select('name username tag email')
+                .select('name username tag email avatar avatar_config')
                 .sort({ name: 1 });
         } catch (error) {
             throw new ServerError("Error al obtener la lista de usuarios", 500);
@@ -159,8 +159,8 @@ class UserRepository {
     async getContacts(user_id) {
         try {
             const user = await User.findById(user_id)
-                .populate('contacts', 'name username tag email')
-                .populate('pending_contacts', 'name username tag email');
+                .populate('contacts', 'name username tag email avatar avatar_config')
+                .populate('pending_contacts', 'name username tag email avatar avatar_config');
             return {
                 accepted: user?.contacts || [],
                 pending: user?.pending_contacts || []

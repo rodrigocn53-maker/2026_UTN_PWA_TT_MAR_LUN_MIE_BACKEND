@@ -44,7 +44,18 @@ const userSchema = new mongoose.Schema(
                 type: mongoose.Schema.Types.ObjectId,
                 ref: 'User'
             }
-        ]
+        ],
+        avatar: {
+            type: String,
+            default: ""
+        },
+        avatar_config: {
+            zoom: { type: Number, default: 1 },
+            position: {
+                x: { type: Number, default: 0 },
+                y: { type: Number, default: 0 }
+            }
+        }
     }
 )
 

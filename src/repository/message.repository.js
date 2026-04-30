@@ -15,7 +15,7 @@ class MessageRepository {
                 path: 'fk_id_member',
                 populate: {
                     path: 'fk_id_user',
-                    select: 'name email'
+                    select: 'name email avatar avatar_config'
                 }
             })
             return message
@@ -31,7 +31,7 @@ class MessageRepository {
                     path: 'fk_id_member',
                     populate: {
                         path: 'fk_id_user',
-                        select: 'name email'
+                        select: 'name email avatar avatar_config'
                     }
                 })
                 .sort({ created_at: 1 })
@@ -49,7 +49,7 @@ class MessageRepository {
                     path: 'fk_id_member',
                     populate: {
                         path: 'fk_id_user',
-                        select: 'name email'
+                        select: 'name email avatar avatar_config'
                     }
                 })
         } catch (error) {
@@ -67,7 +67,7 @@ class MessageRepository {
                 path: 'fk_id_member',
                 populate: {
                     path: 'fk_id_user',
-                    select: 'name email'
+                    select: 'name email avatar avatar_config'
                 }
             })
         } catch (error) {

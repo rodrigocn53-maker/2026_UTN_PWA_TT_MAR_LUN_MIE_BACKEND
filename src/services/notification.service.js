@@ -11,9 +11,9 @@ class NotificationService {
     async createInvitation(sender_id, receiver_id, workspace_id, role = 'user') {
         // Verificar si ya existe una invitación pendiente
         const existing = await notificationRepository.getByReceiverId(receiver_id);
-        const alreadyInvited = existing.find(n => 
-            String(n.workspace_id?._id || n.workspace_id) === String(workspace_id) && 
-            n.status === 'pending' && n.type === 'workspace_invitation'
+        const alreadyInvited = existing.find(notification => 
+            String(notification.workspace_id?._id || notification.workspace_id) === String(workspace_id) && 
+            notification.status === 'pending' && notification.type === 'workspace_invitation'
         );
         
         if (alreadyInvited) {
@@ -31,9 +31,9 @@ class NotificationService {
 
     async createContactRequest(sender_id, receiver_id) {
         const existing = await notificationRepository.getByReceiverId(receiver_id);
-        const alreadyRequested = existing.find(n => 
-            String(n.sender_id?._id || n.sender_id) === String(sender_id) && 
-            n.status === 'pending' && n.type === 'contact_request'
+        const alreadyRequested = existing.find(notification => 
+            String(notification.sender_id?._id || notification.sender_id) === String(sender_id) && 
+            notification.status === 'pending' && notification.type === 'contact_request'
         );
 
         if (alreadyRequested) {

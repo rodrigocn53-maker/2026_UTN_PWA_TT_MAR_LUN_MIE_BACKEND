@@ -13,7 +13,7 @@ class NotificationRepository {
     async getByReceiverId(receiver_id) {
         try {
             return await Notification.find({ receiver_id })
-                .populate('sender_id', 'name username tag')
+                .populate('sender_id', 'name username tag avatar avatar_config')
                 .populate('workspace_id', 'title')
                 .populate('channel_id', 'name')
                 .sort({ created_at: -1 });

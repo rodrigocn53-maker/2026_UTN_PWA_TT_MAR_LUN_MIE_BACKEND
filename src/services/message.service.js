@@ -37,7 +37,9 @@ class MessageService {
             sender: {
                 id: message.fk_id_member?.fk_id_user?._id,
                 name: message.fk_id_member?.fk_id_user?.name,
-                email: message.fk_id_member?.fk_id_user?.email
+                email: message.fk_id_member?.fk_id_user?.email,
+                avatar: message.fk_id_member?.fk_id_user?.avatar,
+                avatar_config: message.fk_id_member?.fk_id_user?.avatar_config
             }
         }
     }
@@ -64,7 +66,9 @@ class MessageService {
             sender: {
                 id: msg.fk_id_member.fk_id_user?._id,
                 name: msg.fk_id_member.fk_id_user?.name,
-                email: msg.fk_id_member.fk_id_user?.email
+                email: msg.fk_id_member.fk_id_user?.email,
+                avatar: msg.fk_id_member.fk_id_user?.avatar,
+                avatar_config: msg.fk_id_member.fk_id_user?.avatar_config
             }
         }))
     }
@@ -96,7 +100,9 @@ class MessageService {
             is_edited: updatedMessage.is_edited,
             sender: {
                 id: updatedMessage.fk_id_member.fk_id_user._id,
-                name: updatedMessage.fk_id_member.fk_id_user.name
+                name: updatedMessage.fk_id_member.fk_id_user.name,
+                avatar: updatedMessage.fk_id_member.fk_id_user.avatar,
+                avatar_config: updatedMessage.fk_id_member.fk_id_user.avatar_config
             }
         }
     }

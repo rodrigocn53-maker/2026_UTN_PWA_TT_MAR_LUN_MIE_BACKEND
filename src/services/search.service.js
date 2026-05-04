@@ -63,7 +63,7 @@ class SearchService {
         })
         .populate({
             path: 'fk_id_member',
-            populate: { path: 'fk_id_user', select: 'name' }
+            populate: { path: 'fk_id_user', select: 'name avatar avatar_config' }
         })
         .sort({ created_at: -1 })
         .limit(20) // Limitamos a 20 mensajes para no saturar
@@ -84,7 +84,11 @@ class SearchService {
                 channel_name: m.fk_id_channel.name,
                 workspace_id: m.fk_id_channel.fk_id_workspace._id,
                 workspace_title: m.fk_id_channel.fk_id_workspace.title,
-                sender_name: m.fk_id_member?.fk_id_user?.name || 'Usuario'
+                sender: {
+                    name: m.fk_id_member?.fk_id_user?.name || 'Usuario',
+                    avatar: m.fk_id_member?.fk_id_user?.avatar,
+                    avatar_config: m.fk_id_member?.fk_id_user?.avatar_config
+                }
             }))
         }
     }

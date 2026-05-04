@@ -53,11 +53,10 @@ class AuthService {
             password: passwordHashed 
         });
         
-        console.log(`[Mail] Intentando enviar email de verificación a: ${email}`);
         try {
             await this.sendVerifyEmail({ email, name });
         } catch (error) {
-            console.error(`[Mail Error] Error completo al enviar a ${email}:`, error);
+            // Silently fail or handle error appropriately if needed
         }
     }
 
@@ -155,9 +154,7 @@ class AuthService {
                     `
                 }
             )
-            console.log(`[Mail] Email enviado con éxito a: ${email}. MessageId: ${info.messageId}`);
         } catch (error) {
-            console.error(`[Mail Error] Falló el envío de email a ${email}:`, error);
             throw error; // Lanzamos el error para que catch de register lo vea
         }
     }

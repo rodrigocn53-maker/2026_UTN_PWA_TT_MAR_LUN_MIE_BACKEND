@@ -60,7 +60,62 @@ La API sigue una **Arquitectura en Capas** para garantizar el desacoplamiento y 
    ```
 
 ## 📄 Documentación de API
-En la raíz de esta carpeta encontrarás el archivo `Api Slack.postman_collection.json` que puedes importar en Postman para probar todos los endpoints disponibles.
+
+Para facilitar la integración y las pruebas, se listan los endpoints principales de la aplicación:
+
+### 🔐 Autenticación (`/api/auth`)
+| Método | Endpoint | Descripción | Protegido |
+| :--- | :--- | :--- | :--- |
+| POST | `/register` | Registra un nuevo usuario | No |
+| POST | `/login` | Inicia sesión y devuelve un token | No |
+| GET | `/verify-email` | Verifica el correo mediante token | No |
+| POST | `/reset-password-request` | Solicita recuperación de contraseña | No |
+| POST | `/reset-password/:token` | Establece una nueva contraseña | No |
+
+### 🏢 Workspaces (`/api/workspace`)
+| Método | Endpoint | Descripción | Protegido |
+| :--- | :--- | :--- | :--- |
+| GET | `/` | Lista workspaces del usuario | Sí |
+| POST | `/` | Crea un nuevo workspace | Sí |
+| GET | `/:workspace_id` | Obtiene detalles de un workspace | Sí |
+| DELETE | `/:workspace_id` | Elimina un workspace (solo Owner) | Sí |
+| POST | `/:workspace_id/invite` | Invita a un usuario al workspace | Sí |
+
+### 💬 Canales (`/api/workspace/:workspace_id/channels`)
+| Método | Endpoint | Descripción | Protegido |
+| :--- | :--- | :--- | :--- |
+| GET | `/` | Lista canales de un workspace | Sí |
+| POST | `/` | Crea un canal en el workspace | Sí |
+| DELETE | `/:channel_id` | Elimina un canal específico | Sí |
+
+### ✉️ Mensajes (`/api/workspace/:workspace_id/channels/:channel_id/messages`)
+| Método | Endpoint | Descripción | Protegido |
+| :--- | :--- | :--- | :--- |
+| GET | `/` | Obtiene historial de mensajes | Sí |
+| POST | `/` | Envía un mensaje (soporta archivos) | Sí |
+| PUT | `/:message_id` | Edita un mensaje (máx 5 min) | Sí |
+| DELETE | `/:message_id` | Elimina un mensaje | Sí |
+
+### 👤 Usuarios y Contactos (`/api/user`)
+| Método | Endpoint | Descripción | Protegido |
+| :--- | :--- | :--- | :--- |
+| GET | `/` | Lista todos los usuarios (para búsqueda) | Sí |
+| GET | `/contacts` | Lista contactos del usuario | Sí |
+| POST | `/contacts/:contactId` | Envía solicitud de contacto | Sí |
+| DELETE | `/contacts/:contactId` | Elimina un contacto | Sí |
+| PUT | `/profile` | Actualiza perfil (nombre/avatar) | Sí |
+
+### 📥 Mensajes Directos (`/api/dm`)
+| Método | Endpoint | Descripción | Protegido |
+| :--- | :--- | :--- | :--- |
+| GET | `/conversations` | Lista conversaciones activas | Sí |
+| GET | `/history/:contactId` | Historial de chat con un contacto | Sí |
+| POST | `/send/:receiverId` | Envía mensaje directo | Sí |
+
+---
+
+### 🚀 Cómo probar la API
+En la raíz de esta carpeta encontrarás el archivo `Api Slack.postman_collection.json` que puedes importar en Postman para probar todos estos endpoints de forma interactiva.
 
 ---
 Proyecto desarrollado para el Trabajo Integrador Final - Fullstack (React + Express).

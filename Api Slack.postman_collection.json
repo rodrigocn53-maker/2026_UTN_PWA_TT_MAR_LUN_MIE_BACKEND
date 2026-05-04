@@ -157,7 +157,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"name\": \"Test canal 1\",\r\n    \"description\": \"lorem ipsum\",\r\n}   "
+                      "raw": "{\r\n    \"name\": \"Test canal 1\",\r\n    \"description\": \"lorem ipsum\"\r\n}   "
                     },
                     "url": {
                       "raw": "{{URL_API_SLACK}}/api/workspace/:workspace_id/channels",
@@ -205,7 +205,7 @@
                     "header": [],
                     "body": {
                       "mode": "raw",
-                      "raw": "{\r\n    \"name\": \"Test canal 1\",\r\n    \"description\": \"lorem ipsum\",\r\n}   "
+                      "raw": "{\r\n    \"name\": \"Test canal 1\",\r\n    \"description\": \"lorem ipsum\"\r\n}   "
                     },
                     "url": {
                       "raw": "{{URL_API_SLACK}}/api/workspace/:workspace_id/channels/:channel_id",

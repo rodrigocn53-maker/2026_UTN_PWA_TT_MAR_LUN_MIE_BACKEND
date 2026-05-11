@@ -50,7 +50,7 @@ app.use(cors({
         
         // Si el origen está en la lista o es un subdominio de vercel.app del proyecto
         const isAllowed = allowedDomains.includes(origin);
-        const isVercelPreview = origin.endsWith('.vercel.app') && origin.includes('2026-utn-pwa-tt-mar-lun-mie');
+        const isVercelPreview = origin.endsWith('.vercel.app');
 
         if (isAllowed || isVercelPreview) {
             callback(null, true);

@@ -16,4 +16,13 @@ dmRouter.get("/history/:contactId", directMessageController.getHistory);
 // Enviar un mensaje privado (con soporte opcional de imagen)
 dmRouter.post("/send/:receiverId", upload.single('image'), directMessageController.sendMessage);
 
+// Editar un mensaje
+dmRouter.put("/message/:messageId", directMessageController.updateMessage);
+
+// Eliminar un mensaje
+dmRouter.delete("/message/:messageId", directMessageController.deleteMessage);
+
+// Eliminar el chat completo con un contacto
+dmRouter.delete("/chat/:contactId", directMessageController.deleteChat);
+
 export default dmRouter;

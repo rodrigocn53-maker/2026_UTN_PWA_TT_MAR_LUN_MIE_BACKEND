@@ -23,6 +23,10 @@ const DirectMessageSchema = new mongoose.Schema({
         type: Boolean,
         default: false
     },
+    is_edited: {
+        type: Boolean,
+        default: false
+    },
     created_at: {
         type: Date,
         default: Date.now

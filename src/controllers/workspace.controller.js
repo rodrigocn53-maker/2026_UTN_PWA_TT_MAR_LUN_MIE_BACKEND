@@ -140,7 +140,7 @@ class WorkspaceController {
     async delete(req, res, next) {
         const { workspace_id } = req.params
         try {
-            await workspaceService.delete(workspace_id)
+            await workspaceService.delete(workspace_id, req.user.id)
             res.status(200).json({
                 ok: true,
                 status: 200,

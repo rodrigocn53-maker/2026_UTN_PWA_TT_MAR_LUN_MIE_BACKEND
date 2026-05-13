@@ -2,6 +2,7 @@ import ServerError from "../helpers/error.helper.js"
 import workspaceRepository from "../repository/workspace.repository.js"
 import memberWorkspaceService from "./memberWorkspace.service.js"
 import channelService from "./channel.service.js"
+import notificationService from "./notification.service.js"
 
 class WorkspaceService {
     async create(title, description, url_image, user_id) {
@@ -53,9 +54,19 @@ class WorkspaceService {
         return updated
     }
 
-    async delete(workspace_id) {
+    async delete(workspace_id, sender_id) {
         if (!workspace_id) {
             throw new ServerError("Debe proporcionar un id", 400)
+        }
+
+        const workspace = await workspaceRepository.getById(workspace_id);
+        if (!workspace) {
+            throw new ServerError("El espacio de trabajo no existe", 404);
+        }
+        
+        // Notify members BEFORE deletes
+        if (sender_id) {
+            await notificationService.notifyWorkspaceDeleted(workspace_id, workspace.title, sender_id);
         }
         
         // Cascading deletes

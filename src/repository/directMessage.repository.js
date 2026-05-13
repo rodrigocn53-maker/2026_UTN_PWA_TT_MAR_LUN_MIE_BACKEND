@@ -27,6 +27,47 @@ class DirectMessageRepository {
         }
     }
 
+    async updateMessage(messageId, content) {
+        try {
+            return await DirectMessage.findByIdAndUpdate(
+                messageId,
+                { content, is_edited: true },
+                { new: true }
+            );
+        } catch (error) {
+            throw new ServerError("Error al actualizar el mensaje", 500);
+        }
+    }
+
+    async deleteMessage(messageId) {
+        try {
+            return await DirectMessage.findByIdAndDelete(messageId);
+        } catch (error) {
+            throw new ServerError("Error al eliminar el mensaje", 500);
+        }
+    }
+
+    async getMessageById(messageId) {
+        try {
+            return await DirectMessage.findById(messageId);
+        } catch (error) {
+            throw new ServerError("Error al obtener el mensaje", 500);
+        }
+    }
+
+    async deleteChatHistory(userA, userB) {
+        try {
+            return await DirectMessage.deleteMany({
+                $or: [
+                    { sender: userA, receiver: userB },
+                    { sender: userB, receiver: userA }
+                ]
+            });
+        } catch (error) {
+            throw new ServerError("Error al eliminar el historial de chat", 500);
+        }
+    }
+
     async getMyConversations(userId) {
         try {
             const userObjectId = new mongoose.Types.ObjectId(userId);

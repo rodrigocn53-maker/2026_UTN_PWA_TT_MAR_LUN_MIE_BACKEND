@@ -27,6 +27,31 @@ class DirectMessageService {
     async getConversations(userId) {
         return await directMessageRepository.getMyConversations(userId);
     }
+
+    async updateMessage(userId, messageId, content) {
+        const message = await directMessageRepository.getMessageById(messageId);
+        if (!message) throw new ServerError("Mensaje no encontrado", 404);
+        
+        if (String(message.sender) !== String(userId)) {
+            throw new ServerError("No tienes permiso para editar este mensaje", 403);
+        }
+        return await directMessageRepository.updateMessage(messageId, content);
+    }
+
+    async deleteMessage(userId, messageId) {
+        const message = await directMessageRepository.getMessageById(messageId);
+        if (!message) throw new ServerError("Mensaje no encontrado", 404);
+        
+        if (String(message.sender) !== String(userId)) {
+            throw new ServerError("No tienes permiso para eliminar este mensaje", 403);
+        }
+        return await directMessageRepository.deleteMessage(messageId);
+    }
+
+    async deleteChat(userId, contactId) {
+        // Podríamos verificar si son contactos, pero si hay historial se puede borrar igual
+        return await directMessageRepository.deleteChatHistory(userId, contactId);
+    }
 }
 
 export default new DirectMessageService();

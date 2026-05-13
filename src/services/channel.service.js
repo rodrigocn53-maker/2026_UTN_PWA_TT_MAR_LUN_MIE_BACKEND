@@ -1,6 +1,7 @@
 
 import ServerError from "../helpers/error.helper.js"
 import channelRepository from "../repository/channel.repository.js"
+import notificationService from "./notification.service.js"
 
 
 class ChannelService {
@@ -47,14 +48,23 @@ class ChannelService {
         return channel
     }
 
-    async delete(workspace_id, channel_id) {
-
+    async delete(workspace_id, channel_id, sender_id) {
         if(!workspace_id || !channel_id) {
             throw new ServerError("Faltan campos obligatorios", 400)
         }
 
-        const channel = await channelRepository.delete( channel_id)
-        return channel
+        const channel = await channelRepository.getById(channel_id);
+        if (!channel) {
+            throw new ServerError("El canal no existe", 404);
+        }
+
+        // Notify BEFORE delete
+        if (sender_id) {
+            await notificationService.notifyChannelDeleted(workspace_id, channel.name, sender_id);
+        }
+
+        const deletedChannel = await channelRepository.delete(channel_id)
+        return deletedChannel
     }
 }
 

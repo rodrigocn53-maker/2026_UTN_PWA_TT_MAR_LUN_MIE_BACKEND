@@ -58,6 +58,62 @@ class DirectMessageController {
             next(error);
         }
     }
+
+    async updateMessage(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { messageId } = req.params;
+            const { content } = req.body;
+            
+            const message = await directMessageService.updateMessage(userId, messageId, content);
+
+            res.status(200).json({
+                ok: true,
+                status: 200,
+                message: "Mensaje actualizado",
+                data: message
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteMessage(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { messageId } = req.params;
+
+            await directMessageService.deleteMessage(userId, messageId);
+
+            res.status(200).json({
+                ok: true,
+                status: 200,
+                message: "Mensaje eliminado"
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async deleteChat(req, res, next) {
+        try {
+            const userId = req.user.id;
+            const { contactId } = req.params;
+
+            await directMessageService.deleteChat(userId, contactId);
+
+            // Notificar al otro miembro del chat que ha sido borrado
+            await notificationService.notifyChatDeleted(userId, contactId);
+
+            res.status(200).json({
+                ok: true,
+                status: 200,
+                message: "Chat eliminado exitosamente"
+            });
+        } catch (error) {
+            next(error);
+        }
+    }
 }
 
 export default new DirectMessageController();

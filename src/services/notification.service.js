@@ -148,6 +148,45 @@ class NotificationService {
         }
         return await notificationRepository.markAsReadById(notification_id);
     }
+
+    async notifyWorkspaceDeleted(workspace_id, workspace_title, sender_id) {
+        const members = await memberWorkspaceService.getMemberList(workspace_id);
+        for (const member of members) {
+            if (String(member.user_id) === String(sender_id)) continue;
+            await notificationRepository.create({
+                sender_id,
+                receiver_id: member.user_id,
+                type: 'info_alert',
+                message: `El espacio de trabajo "${workspace_title}" ha sido eliminado por su propietario.`
+            });
+        }
+    }
+
+    async notifyChannelDeleted(workspace_id, channel_name, sender_id) {
+        const members = await memberWorkspaceService.getMemberList(workspace_id);
+        for (const member of members) {
+            if (String(member.user_id) === String(sender_id)) continue;
+            await notificationRepository.create({
+                sender_id,
+                receiver_id: member.user_id,
+                type: 'info_alert',
+                message: `El canal "#${channel_name}" ha sido eliminado.`
+            });
+        }
+    }
+
+    async notifyChatDeleted(sender_id, receiver_id) {
+        if (String(sender_id) === String(receiver_id)) return;
+        const senderUser = await userRepository.getById(sender_id);
+        const senderName = senderUser ? senderUser.name : 'Alguien';
+        
+        await notificationRepository.create({
+            sender_id,
+            receiver_id,
+            type: 'info_alert',
+            message: `El chat privado con ${senderName} ha sido borrado y finalizado.`
+        });
+    }
 }
 
 const notificationService = new NotificationService();

@@ -109,7 +109,7 @@ class ChannelController {
         try {
             const { workspace, channel } = req
 
-            const channel_found = await channelService.delete(workspace._id, channel.channel_id)
+            const channel_found = await channelService.delete(workspace._id, channel.channel_id, req.user.id)
 
             res.status(200).json(
                 {

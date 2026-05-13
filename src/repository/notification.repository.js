@@ -35,6 +35,19 @@ class NotificationRepository {
         }
     }
 
+    async getPendingDirectMessageNotification(receiver_id, sender_id) {
+        try {
+            return await Notification.findOne({
+                receiver_id,
+                sender_id,
+                type: 'direct_message',
+                read: false
+            });
+        } catch (error) {
+            throw new ServerError("Error al obtener notificación de mensaje directo", 500);
+        }
+    }
+
     async incrementMessageCount(notification_id, sender_id) {
         try {
             return await Notification.findByIdAndUpdate(

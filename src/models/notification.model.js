@@ -19,7 +19,7 @@ const notificationSchema = new mongoose.Schema(
         },
         type: {
             type: String,
-            enum: ['workspace_invitation', 'channel_message', 'contact_request', 'contact_accepted', 'contact_rejected'],
+            enum: ['workspace_invitation', 'channel_message', 'contact_request', 'contact_accepted', 'contact_rejected', 'direct_message'],
             default: 'workspace_invitation',
             required: true
         },

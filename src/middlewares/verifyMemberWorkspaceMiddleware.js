@@ -44,7 +44,7 @@ function verifyMemberWorkspaceRoleMiddleware(valid_roles = []) {
         } catch (error) {
             //Errores esperables en el sistema
             if (error instanceof ServerError) {
-                return response.status(error.status).json(
+                return res.status(error.status).json(
                     {
                         ok: false,
                         status: error.status,
@@ -54,7 +54,7 @@ function verifyMemberWorkspaceRoleMiddleware(valid_roles = []) {
             }
             else {
                 console.error('Error al verificar espacio de trabajo y membresia', error)
-                return response.status(500).json(
+                return res.status(500).json(
                     {
                         ok: false,
                         status: 500,

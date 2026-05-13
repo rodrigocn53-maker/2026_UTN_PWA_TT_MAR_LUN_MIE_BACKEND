@@ -75,6 +75,25 @@ class NotificationService {
         }
     }
 
+    async notifyDirectMessage(sender_id, receiver_id) {
+        // No notificar a sí mismo (por las dudas)
+        if (String(sender_id) === String(receiver_id)) return;
+
+        const pendingNotif = await notificationRepository.getPendingDirectMessageNotification(receiver_id, sender_id);
+        
+        if (pendingNotif) {
+            await notificationRepository.incrementMessageCount(pendingNotif._id, sender_id);
+        } else {
+            await notificationRepository.create({
+                sender_id,
+                receiver_id,
+                type: 'direct_message',
+                status: 'pending',
+                message_count: 1
+            });
+        }
+    }
+
     async respondToInvitation(notification_id, user_id, action) {
         const notification = await notificationRepository.getById(notification_id);
         

@@ -1,4 +1,5 @@
 import directMessageService from "../services/directMessage.service.js";
+import notificationService from "../services/notification.service.js";
 
 class DirectMessageController {
     async sendMessage(req, res, next) {
@@ -9,6 +10,9 @@ class DirectMessageController {
             const image = req.file ? req.file.path : undefined;
 
             const message = await directMessageService.sendMessage(senderId, receiverId, { content, image });
+
+            // Generar notificación de nuevo mensaje privado
+            await notificationService.notifyDirectMessage(senderId, receiverId);
 
             res.status(201).json({
                 ok: true,

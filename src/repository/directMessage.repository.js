@@ -1,5 +1,6 @@
 import DirectMessage from "../models/directMessage.model.js";
 import ServerError from "../helpers/error.helper.js";
+import mongoose from "mongoose";
 
 class DirectMessageRepository {
     async create({ sender, receiver, content, image }) {
@@ -28,11 +29,12 @@ class DirectMessageRepository {
 
     async getMyConversations(userId) {
         try {
+            const userObjectId = new mongoose.Types.ObjectId(userId);
             // Buscamos los últimos mensajes de cada conversación
             return await DirectMessage.aggregate([
                 {
                     $match: {
-                        $or: [{ sender: userId }, { receiver: userId }]
+                        $or: [{ sender: userObjectId }, { receiver: userObjectId }]
                     }
                 },
                 {
@@ -42,7 +44,7 @@ class DirectMessageRepository {
                     $group: {
                         _id: {
                             $cond: [
-                                { $eq: ["$sender", userId] },
+                                { $eq: ["$sender", userObjectId] },
                                 "$receiver",
                                 "$sender"
                             ]
